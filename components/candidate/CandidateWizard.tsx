@@ -15,6 +15,7 @@ import {
   DEFAULT_JOB_COUNTRY,
   INTERNATIONAL_WORK_AUTH,
   isInternationalCountry,
+  professionListCovers,
 } from '@/lib/constants';
 import {
   validateAvailabilityStep,
@@ -427,9 +428,20 @@ export default function CandidateWizard({
           json.error ||
             (locale === 'en'
               ? 'Unable to save the application.'
-              : "Impossible d'enregistrer la candidature.")
+            : "Impossible d'enregistrer la candidature.")
         );
       }
+      const hasCv = form.documents.CV?.status === 'Reçu' && !!form.documents.CV?.file_path;
+      const hasContact = !!(form.phone.trim() || form.email.trim());
+      const professionMatchesMandate =
+        !job?.profession || professionListCovers(form.qualified_professions, job.profession);
+      const isQualifiedSubmission =
+        hasCv &&
+        hasContact &&
+        form.consent_data &&
+        !!form.years_experience &&
+        professionMatchesMandate;
+
       trackAnalyticsEvent('candidate_application_submit_success', {
         mode,
         job_id: job?.id,
@@ -440,13 +452,36 @@ export default function CandidateWizard({
         job_profession: job?.profession,
         application_id: json.application_id,
         completion_score: computeQuickCompletionScore(form),
-        has_cv: form.documents.CV?.status === 'Reçu' && !!form.documents.CV?.file_path,
+        has_cv: hasCv,
+        has_contact: hasContact,
+        profession_matches_mandate: professionMatchesMandate,
+        qualified_submission: isQualifiedSubmission,
         qualified_professions: form.qualified_professions.join(', '),
         years_experience: form.years_experience,
         candidate_region: form.region_residence,
         preferred_regions: form.region_choices.map((choice) => choice.region).filter(Boolean).join(', '),
         shifts: form.shifts_accepted.join(', '),
       });
+      trackAnalyticsEvent(
+        isQualifiedSubmission
+          ? 'candidate_application_qualified_submit'
+          : 'candidate_application_needs_review_submit',
+        {
+          mode,
+          job_id: job?.id,
+          job_title: job?.title,
+          job_country: job?.country,
+          job_region: job?.region,
+          job_department: job?.department,
+          job_profession: job?.profession,
+          application_id: json.application_id,
+          has_cv: hasCv,
+          has_contact: hasContact,
+          profession_matches_mandate: professionMatchesMandate,
+          years_experience: form.years_experience,
+          candidate_region: form.region_residence,
+        }
+      );
       clearDraft(storageKey);
       const thanksParams = new URLSearchParams({ type: mode });
       if (json.application_id) thanksParams.set('application_id', String(json.application_id));
