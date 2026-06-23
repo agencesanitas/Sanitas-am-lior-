@@ -9,7 +9,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { trackAnalyticsEvent } from '@/lib/analytics';
+import { trackAnalyticsEvent, trackCandidateLeadConversion } from '@/lib/analytics';
 import { localizedPath, type Locale } from '@/lib/i18n';
 import {
   DEFAULT_JOB_COUNTRY,
@@ -482,6 +482,21 @@ export default function CandidateWizard({
           candidate_region: form.region_residence,
         }
       );
+      trackCandidateLeadConversion({
+        transactionId: json.application_id ? String(json.application_id) : null,
+        params: {
+          source: 'candidate_submit_success',
+          mode,
+          job_id: job?.id,
+          job_country: job?.country,
+          job_region: job?.region,
+          job_department: job?.department,
+          job_profession: job?.profession,
+          qualified_submission: isQualifiedSubmission,
+          has_cv: hasCv,
+          has_contact: hasContact,
+        },
+      });
       clearDraft(storageKey);
       const thanksParams = new URLSearchParams({ type: mode });
       if (json.application_id) thanksParams.set('application_id', String(json.application_id));
