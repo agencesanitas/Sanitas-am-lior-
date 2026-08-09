@@ -10,14 +10,15 @@
 :root {
   /* Surfaces */
   --bg: 0.992 0.003 240;
-  --surface: 1 0 0;
+  --surface: 0.997 0.002 240;
   --muted: 0.97 0.004 240;
   --border: 0.92 0.005 240;
 
   /* Textes */
   --fg: 0.18 0.012 240;
   --fg-muted: 0.42 0.008 240;
-  --fg-subtle: 0.58 0.006 240;
+  /* 5:1 sur les surfaces claires : les micro-libellés restent réellement lisibles. */
+  --fg-subtle: 0.53 0.006 240;
 
   /* Accent santé (bleu calme) — légèrement approfondi pour porter les CTA
      et garantir le contraste AA en texte sur fond clair. */
@@ -30,7 +31,7 @@
   /* Sémantiques — warning assombri pour rester lisible en texte sur soft. */
   --success: 0.52 0.095 155;
   --success-soft: 0.965 0.018 155;
-  --warning: 0.6 0.125 70;
+  --warning: 0.54 0.125 70;
   --warning-soft: 0.965 0.024 75;
   --danger: 0.55 0.155 25;
   --danger-soft: 0.965 0.025 25;
@@ -94,7 +95,7 @@ body {
 
 /* Boutons */
 .btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-[16px] font-medium transition-all duration-200 ease-out-quart;
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-3 text-[16px] font-medium transition-all duration-200 ease-out-quart;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
 }
 /* Primaire = accent santé : c'est la couleur d'action du site. */
@@ -178,7 +179,13 @@ body {
 
 /* Chip-link : pastille cliquable qui mène à une vraie destination (Link) */
 .chip-link {
-  @apply inline-flex items-center rounded-full border border-border bg-surface px-4 py-2 text-[14.5px] text-fg transition-colors hover:border-accent/40 hover:bg-accent-soft hover:text-accent;
+  @apply inline-flex min-h-11 items-center rounded-full border border-border bg-surface px-4 py-2 text-[14.5px] text-fg transition-colors hover:border-accent/40 hover:bg-accent-soft hover:text-accent;
+}
+
+/* Les longues listes ne peignent que les cartes proches du viewport. */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 330px;
 }
 
 /* Tag : élément purement informatif, jamais cliquable */

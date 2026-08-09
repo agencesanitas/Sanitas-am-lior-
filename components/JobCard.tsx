@@ -47,7 +47,7 @@ export default function JobCard({ job, variant = 'default', locale = 'fr' }: Job
   const hasBadges = (job.urgency && job.urgency !== 'normal') || isInternational || remoteRegion;
 
   return (
-    <article className="card-interactive p-6 flex flex-col gap-4">
+    <article className="card-interactive content-auto p-6 flex flex-col gap-4">
       {hasBadges && (
         <div className="flex flex-wrap items-center gap-2">
           <UrgencyBadge urgency={job.urgency} locale={locale} />
@@ -119,7 +119,7 @@ export default function JobCard({ job, variant = 'default', locale = 'fr' }: Job
         </Link>
         <Link
           href={localizedJobPath(locale, job.id)}
-          className="inline-flex items-center gap-1.5 text-[14.5px] font-medium text-fg-muted transition-colors hover:text-accent"
+          className="-mr-2 inline-flex min-h-11 items-center gap-1.5 px-2 text-[14.5px] font-medium text-fg-muted transition-colors hover:text-accent"
           data-analytics-event="job_view_click"
           data-analytics-label="job_card_secondary_link"
           data-analytics-job-id={job.id}

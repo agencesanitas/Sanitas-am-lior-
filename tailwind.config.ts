@@ -45,8 +45,6 @@ const config: Config = {
           'system-ui',
           'sans-serif',
         ],
-        // Police serif pour accents typographiques (hero, citations).
-        serif: ['var(--font-serif)', 'Playfair Display', 'Georgia', 'serif'],
       },
       fontSize: {
         'display-xl': ['clamp(2.5rem, 5vw, 4.25rem)', { lineHeight: '1.05', letterSpacing: '-0.025em', fontWeight: '600' }],

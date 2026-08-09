@@ -52,6 +52,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
     mandate_type: params.get('mandate_type') || '',
     urgency: params.get('urgency') || '',
   });
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     setFilters({
@@ -76,7 +77,9 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
     for (const [k, v] of Object.entries(filters)) {
       if (v) sp.set(k, v);
     }
-    router.push(`${localizedPath(locale, 'jobs')}${sp.toString() ? `?${sp.toString()}` : ''}`);
+    router.push(
+      `${localizedPath(locale, 'jobs')}${sp.toString() ? `?${sp.toString()}` : ''}#resultats`
+    );
   }
 
   function reset() {
@@ -96,6 +99,14 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
 
   const selectedCountry = filters.country || DEFAULT_JOB_COUNTRY;
   const internationalFilter = isInternationalCountry(selectedCountry);
+  const advancedFilterCount = [
+    filters.country,
+    filters.city,
+    filters.establishment,
+    filters.shift,
+    filters.mandate_type,
+    filters.urgency,
+  ].filter(Boolean).length;
 
   return (
     <form
@@ -105,7 +116,35 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
       }}
       className="card p-5 sm:p-6 space-y-4"
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between md:hidden">
+        <div>
+          <h2 className="text-[17px] font-semibold text-fg">
+            {locale === 'en' ? 'Refine your search' : 'Affinez votre recherche'}
+          </h2>
+          <p className="mt-0.5 text-[14px] text-fg-muted">
+            {locale === 'en'
+              ? 'Start with a profession, region or department.'
+              : 'Commencez par une profession, une région ou un département.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-border px-4 text-[14px] font-medium text-fg transition-colors hover:border-accent/40 hover:text-accent"
+          aria-expanded={showAdvanced}
+          aria-controls="advanced-job-filters"
+          onClick={() => setShowAdvanced((value) => !value)}
+        >
+          {showAdvanced
+            ? locale === 'en'
+              ? 'Fewer filters'
+              : 'Moins de filtres'
+            : locale === 'en'
+              ? `More filters${advancedFilterCount ? ` (${advancedFilterCount})` : ''}`
+              : `Plus de filtres${advancedFilterCount ? ` (${advancedFilterCount})` : ''}`}
+        </button>
+      </div>
+
+      <div id="advanced-job-filters" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label className="label" htmlFor="f-profession">
             {locale === 'en' ? 'Profession' : 'Profession'}
@@ -125,7 +164,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           </select>
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-country">
             {copy.jobs.country}
           </label>
@@ -174,7 +213,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           )}
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-city">
             {copy.jobs.city}
           </label>
@@ -188,7 +227,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           />
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-establishment">
             {copy.jobs.establishment}
           </label>
@@ -196,7 +235,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
             id="f-establishment"
             className="input"
             type="text"
-            placeholder={locale === 'en' ? 'Facility name' : "Nom de l'etablissement"}
+            placeholder={locale === 'en' ? 'Facility name' : "Nom de l’établissement"}
             value={filters.establishment}
             onChange={(e) => update('establishment', e.target.value)}
           />
@@ -221,7 +260,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           </select>
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-shift">
             {copy.jobs.shift}
           </label>
@@ -240,7 +279,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           </select>
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-mandate">
             {copy.jobs.mandateType}
           </label>
@@ -259,7 +298,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           </select>
         </div>
 
-        <div>
+        <div className={showAdvanced ? 'block' : 'hidden md:block'}>
           <label className="label" htmlFor="f-urgency">
             {locale === 'en' ? 'Urgency' : 'Urgence'}
           </label>
@@ -278,12 +317,12 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 pt-2">
+      <div className="grid grid-cols-2 gap-3 pt-2 sm:flex sm:flex-wrap">
         <button type="submit" className="btn-primary">
-          {locale === 'en' ? 'Filter' : 'Filtrer'}
+          {locale === 'en' ? 'Show jobs' : 'Afficher les postes'}
         </button>
         <button type="button" onClick={reset} className="btn-secondary">
-          {locale === 'en' ? 'Reset' : 'Reinitialiser'}
+          {locale === 'en' ? 'Reset' : 'Réinitialiser'}
         </button>
       </div>
     </form>

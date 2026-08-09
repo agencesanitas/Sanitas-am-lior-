@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
@@ -157,11 +158,14 @@ export default async function HomePage() {
       <section className="relative isolate overflow-hidden bg-fg">
         {/* Couche 1 : image de fond */}
         <div className="absolute inset-0 -z-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={HERO_BG}
             alt=""
-            className="h-full w-full object-cover"
+            fill
+            sizes="100vw"
+            quality={82}
+            priority
+            className="object-cover"
             aria-hidden
           />
         </div>
@@ -183,7 +187,7 @@ export default async function HomePage() {
 
             <h1 className="mt-6 text-[clamp(2.5rem,5.5vw,4.25rem)] leading-[1.06] tracking-[-0.025em] font-semibold text-bg">
               Des mandats infirmiers et en santé{' '}
-              <span className="font-serif italic font-medium tracking-[-0.01em] text-[oklch(0.85_0.09_220)]">
+              <span className="font-semibold tracking-[-0.02em] text-accent-bright">
                 adaptés à votre réalité.
               </span>
             </h1>

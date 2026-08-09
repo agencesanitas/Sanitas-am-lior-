@@ -200,9 +200,9 @@ export const PUBLIC_COPY = {
       territory: 'Région / territoire',
       region: 'Région',
       city: 'Ville',
-      establishment: 'Etablissement',
+      establishment: 'Établissement',
       type: 'Type',
-      start: 'Debut',
+      start: 'Début',
       fallbackRequirements:
         "L'équipe Sanitas confirmera les exigences détaillées avec vous avant toute présentation.",
       fallbackParticularities:
@@ -600,8 +600,42 @@ export function jobDuration(job: Job, locale: Locale): string | null {
 }
 
 export function jobSalary(job: Job, locale: Locale): string | null {
-  if (locale === 'en') return job.salary_en || job.salary;
-  return job.salary;
+  const raw = locale === 'en' ? job.salary_en || job.salary : job.salary;
+  if (!raw) return null;
+
+  let value = raw
+    .trim()
+    .replace(/(\d)\s*\$\s*\/\s*h(?:eures?)?/gi, '$1 $/h')
+    .replace(/\/\s*hours?\b/gi, '/hour')
+    .replace(/\/\s*months?\b/gi, '/month');
+
+  if (locale === 'fr') {
+    value = value.replace(/\/hour\b/gi, '/h').replace(/\/month\b/gi, '/mois');
+  } else {
+    value = value.replace(/\/h\b/gi, '/hour').replace(/\/mois\b/gi, '/month');
+  }
+
+  const hasCurrency = /\$|\b(?:cad|usd|dollars?)\b/i.test(value);
+  const hasUnit =
+    /\/\s*(?:h|hour|jour|day|sem(?:aine)?|week|mois|month|an|année|year)\b|\b(?:par|per)\s+(?:heure|hour|jour|day|diem|semaine|week|mois|month|an|année|year)\b/i.test(
+      value
+    );
+
+  if (!hasCurrency || hasUnit) return value;
+
+  const amounts = (value.match(/\d[\d\s,.]*/g) || [])
+    .map((amount) => Number(amount.replace(/\s/g, '').replace(',', '.')))
+    .filter(Number.isFinite);
+  const highestAmount = amounts.length ? Math.max(...amounts) : 0;
+  const isInternational = (job.country || 'Canada') !== 'Canada';
+
+  if (isInternational && highestAmount >= 1000) {
+    return `${value} ${locale === 'en' ? '/month' : '/mois'}`;
+  }
+  if (highestAmount > 0 && highestAmount <= 500) {
+    return `${value} ${locale === 'en' ? '/hour' : '/h'}`;
+  }
+  return value;
 }
 
 export function jobRequirements(job: Job, locale: Locale): string | null {

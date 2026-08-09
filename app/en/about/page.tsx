@@ -31,7 +31,7 @@ export default function EnglishAboutPage() {
                 Agence Sanitas is a healthcare staffing agency based in Laval. We support healthcare professionals in finding assignments aligned with their reality, while helping facilities meet staffing needs.
               </p>
             </div>
-            <Photo src={HERO_PHOTO} alt="Professional meeting" aspect="landscape" rounded="3xl" className="shadow-card" />
+            <Photo src={HERO_PHOTO} alt="Professional meeting" aspect="landscape" rounded="3xl" priority className="shadow-card" />
           </div>
         </div>
       </section>

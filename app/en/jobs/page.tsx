@@ -130,14 +130,13 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section className="pb-12">
-        <div className="container-page space-y-6">
+      <section className="pb-8 sm:pb-10">
+        <div className="container-page">
           <JobFilters locale="en" />
-          <PopularSearchLinks locale="en" />
         </div>
       </section>
 
-      <section className="pb-24">
+      <section id="resultats" className="scroll-mt-24 pb-14 sm:pb-16">
         <div className="container-page">
           {jobs.length === 0 ? (
             <div className="card p-10 text-center">
@@ -162,6 +161,16 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
               </div>
             </>
           )}
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-muted/40 py-14 sm:py-16">
+        <div className="container-page space-y-8">
+          <div>
+            <p className="eyebrow">Explore by need</p>
+            <h2 className="mt-2 text-display-md text-fg">Popular healthcare searches</h2>
+          </div>
+          <PopularSearchLinks locale="en" />
         </div>
       </section>
     </PublicLayout>

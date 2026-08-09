@@ -40,6 +40,7 @@ export default function AboutPage() {
               alt="Rencontre professionnelle"
               aspect="landscape"
               rounded="3xl"
+              priority
               className="shadow-card"
             />
           </div>

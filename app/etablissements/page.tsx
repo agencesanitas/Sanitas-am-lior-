@@ -90,6 +90,7 @@ export default function EtablissementsPage() {
               alt="Couloir d'hôpital lumineux"
               aspect="landscape"
               rounded="3xl"
+              priority
               className="shadow-card"
             />
           </div>

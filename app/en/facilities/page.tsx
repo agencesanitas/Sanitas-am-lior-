@@ -73,7 +73,7 @@ export default function EnglishFacilitiesPage() {
                 Agence Sanitas supports healthcare facilities with one-time, urgent, recurring or planned staffing needs.
               </p>
             </div>
-            <Photo src={HERO_PHOTO} alt="Bright hospital hallway" aspect="landscape" rounded="3xl" className="shadow-card" />
+            <Photo src={HERO_PHOTO} alt="Bright hospital hallway" aspect="landscape" rounded="3xl" priority className="shadow-card" />
           </div>
         </div>
       </section>

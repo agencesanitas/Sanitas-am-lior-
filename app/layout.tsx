@@ -1,18 +1,9 @@
 import type { Metadata } from 'next';
 import AnalyticsClickTracker from '@/components/AnalyticsClickTracker';
 import GoogleAdsTag from '@/components/GoogleAdsTag';
-import { Playfair_Display } from 'next/font/google';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import { SITE_URL, organizationJsonLd, websiteJsonLd } from '@/lib/seo';
 import './globals.css';
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  style: ['italic', 'normal'],
-  weight: ['400', '500', '600'],
-  variable: '--font-serif',
-  display: 'swap',
-});
 
 const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
 const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
@@ -91,7 +82,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr-CA" className={playfair.variable}>
+    <html lang="fr-CA">
       <body className="min-h-screen antialiased">
         <GoogleAdsTag tagId={googleAdsId} analyticsId={googleAnalyticsId} />
         <AnalyticsClickTracker />
