@@ -96,6 +96,8 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
 
   const selectedCountry = filters.country || DEFAULT_JOB_COUNTRY;
   const internationalFilter = isInternationalCountry(selectedCountry);
+  const hasAdvancedFilters = ['city', 'establishment', 'department', 'shift', 'mandate_type', 'urgency']
+    .some((key) => Boolean(params.get(key)));
 
   return (
     <form
@@ -103,12 +105,12 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
         e.preventDefault();
         apply();
       }}
-      className="card p-5 sm:p-6 space-y-4"
+      className="card space-y-4 p-4 sm:p-5"
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-3">
         <div>
           <label className="label" htmlFor="f-profession">
-            {locale === 'en' ? 'Profession' : 'Profession'}
+            Profession
           </label>
           <select
             id="f-profession"
@@ -174,116 +176,124 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
           )}
         </div>
 
-        <div>
-          <label className="label" htmlFor="f-city">
-            {copy.jobs.city}
-          </label>
-          <input
-            id="f-city"
-            className="input"
-            type="text"
-            placeholder="Laval"
-            value={filters.city}
-            onChange={(e) => update('city', e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="label" htmlFor="f-establishment">
-            {copy.jobs.establishment}
-          </label>
-          <input
-            id="f-establishment"
-            className="input"
-            type="text"
-            placeholder={locale === 'en' ? 'Facility name' : "Nom de l'etablissement"}
-            value={filters.establishment}
-            onChange={(e) => update('establishment', e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="label" htmlFor="f-department">
-            {copy.jobs.department}
-          </label>
-          <select
-            id="f-department"
-            className="input"
-            value={filters.department}
-            onChange={(e) => update('department', e.target.value)}
-          >
-            <option value="">{copy.common.all}</option>
-            {ALL_DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>
-                {displayValue(locale, d)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="label" htmlFor="f-shift">
-            {copy.jobs.shift}
-          </label>
-          <select
-            id="f-shift"
-            className="input"
-            value={filters.shift}
-            onChange={(e) => update('shift', e.target.value)}
-          >
-            <option value="">{copy.common.all}</option>
-            {SHIFTS.map((s) => (
-              <option key={s} value={s}>
-                {displayValue(locale, s)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="label" htmlFor="f-mandate">
-            {copy.jobs.mandateType}
-          </label>
-          <select
-            id="f-mandate"
-            className="input"
-            value={filters.mandate_type}
-            onChange={(e) => update('mandate_type', e.target.value)}
-          >
-            <option value="">{copy.common.all}</option>
-            {MANDATE_TYPES.map((m) => (
-              <option key={m} value={m}>
-                {displayValue(locale, m)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="label" htmlFor="f-urgency">
-            {locale === 'en' ? 'Urgency' : 'Urgence'}
-          </label>
-          <select
-            id="f-urgency"
-            className="input"
-            value={filters.urgency}
-            onChange={(e) => update('urgency', e.target.value)}
-          >
-            {URGENCIES.map((u) => (
-              <option key={u.value} value={u.value}>
-                {u.label[locale]}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
+
+      <details open={hasAdvancedFilters || undefined} className="border-t border-border pt-3">
+        <summary className="w-fit cursor-pointer py-1 text-sm font-semibold text-accent">
+          {locale === 'en' ? 'More filters' : 'Plus de filtres'}
+        </summary>
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <label className="label" htmlFor="f-city">
+              {copy.jobs.city}
+            </label>
+            <input
+              id="f-city"
+              className="input"
+              type="text"
+              placeholder="Laval"
+              value={filters.city}
+              onChange={(e) => update('city', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="label" htmlFor="f-establishment">
+              {copy.jobs.establishment}
+            </label>
+            <input
+              id="f-establishment"
+              className="input"
+              type="text"
+              placeholder={locale === 'en' ? 'Facility name' : "Nom de l'etablissement"}
+              value={filters.establishment}
+              onChange={(e) => update('establishment', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="label" htmlFor="f-department">
+              {copy.jobs.department}
+            </label>
+            <select
+              id="f-department"
+              className="input"
+              value={filters.department}
+              onChange={(e) => update('department', e.target.value)}
+            >
+              <option value="">{copy.common.all}</option>
+              {ALL_DEPARTMENTS.map((d) => (
+                <option key={d} value={d}>
+                  {displayValue(locale, d)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="label" htmlFor="f-shift">
+              {copy.jobs.shift}
+            </label>
+            <select
+              id="f-shift"
+              className="input"
+              value={filters.shift}
+              onChange={(e) => update('shift', e.target.value)}
+            >
+              <option value="">{copy.common.all}</option>
+              {SHIFTS.map((s) => (
+                <option key={s} value={s}>
+                  {displayValue(locale, s)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="label" htmlFor="f-mandate">
+              {copy.jobs.mandateType}
+            </label>
+            <select
+              id="f-mandate"
+              className="input"
+              value={filters.mandate_type}
+              onChange={(e) => update('mandate_type', e.target.value)}
+            >
+              <option value="">{copy.common.all}</option>
+              {MANDATE_TYPES.map((m) => (
+                <option key={m} value={m}>
+                  {displayValue(locale, m)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="label" htmlFor="f-urgency">
+              {locale === 'en' ? 'Urgency' : 'Urgence'}
+            </label>
+            <select
+              id="f-urgency"
+              className="input"
+              value={filters.urgency}
+              onChange={(e) => update('urgency', e.target.value)}
+            >
+              {URGENCIES.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label[locale]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </details>
 
       <div className="flex flex-wrap gap-3 pt-2">
         <button type="submit" className="btn-primary">
           {locale === 'en' ? 'Filter' : 'Filtrer'}
         </button>
         <button type="button" onClick={reset} className="btn-secondary">
-          {locale === 'en' ? 'Reset' : 'Reinitialiser'}
+          {locale === 'en' ? 'Reset' : 'Réinitialiser'}
         </button>
       </div>
     </form>

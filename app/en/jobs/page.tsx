@@ -6,7 +6,6 @@ import SeoJsonLd from '@/components/SeoJsonLd';
 import JobFilters from '@/components/JobFilters';
 import JobCard from '@/components/JobCard';
 import PopularSearchLinks from '@/components/PopularSearchLinks';
-import { DecorativeBlob } from '@/components/Icons';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   breadcrumbJsonLd,
@@ -119,28 +118,13 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
           ],
         }}
       />
-      <section className="relative section pt-16 pb-8 overflow-hidden">
-        <DecorativeBlob className="absolute -top-32 -right-40 h-[450px] w-[450px] text-accent pointer-events-none" />
-        <div className="container-page relative">
-          <p className="text-[13px] font-semibold uppercase tracking-wider text-accent">Jobs</p>
-          <h1 className="mt-2 text-display-lg text-fg">Healthcare assignments</h1>
-          <p className="mt-4 max-w-prose text-[16px] leading-relaxed text-fg-muted">
-            Filter open roles by profession, country, region, city, facility, department, shift or
-            assignment type. Nursing searches are also organized by remote Quebec regions, department
-            and assignment type.
-          </p>
-        </div>
+      <section className="container-page pb-6 pt-9 sm:pb-8 sm:pt-12">
+        <h1 className="text-display-lg text-fg">Healthcare jobs</h1>
+        <p className="mt-3 max-w-2xl text-fg-muted">Find nursing, pharmacy and other healthcare positions.</p>
+        <div className="mt-6"><JobFilters locale="en" /></div>
       </section>
 
       <section className="pb-12">
-        <div className="container-page space-y-6">
-          <JobFilters locale="en" />
-          <PharmacyRecruitmentListings locale="en" profession={param(searchParams, 'profession')} />
-          <PopularSearchLinks locale="en" />
-        </div>
-      </section>
-
-      <section className="pb-24">
         <div className="container-page">
           {jobs.length === 0 ? (
             <div className="card p-10 text-center">
@@ -167,6 +151,10 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
           )}
         </div>
       </section>
+      <div className="container-page space-y-10 pb-14">
+        <PharmacyRecruitmentListings locale="en" profession={param(searchParams, 'profession')} />
+        <PopularSearchLinks locale="en" />
+      </div>
     </PublicLayout>
   );
 }

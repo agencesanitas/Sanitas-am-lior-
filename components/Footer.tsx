@@ -105,10 +105,10 @@ export default function Footer({ locale = 'fr' }: { locale?: Locale }) {
           <FooterColumn title={copy.footer.information} links={infoLinks} locale={locale} />
         </div>
 
-        <div className="mt-10 border-t border-border pt-8">
-          <p className="eyebrow-subtle">
+        <details className="mt-10 border-t border-border pt-6">
+          <summary className="w-fit cursor-pointer py-1 text-sm font-medium text-fg-muted hover:text-fg">
             {locale === 'en' ? 'Popular searches' : 'Recherches populaires'}
-          </p>
+          </summary>
           <ul className="mt-4 grid gap-x-8 gap-y-2 text-[13.5px] sm:grid-cols-2 lg:grid-cols-3">
             {searchLinks.map((l) => (
               <li key={l.href} className="min-w-0">
@@ -118,7 +118,7 @@ export default function Footer({ locale = 'fr' }: { locale?: Locale }) {
               </li>
             ))}
           </ul>
-        </div>
+        </details>
 
         <div className="hr-soft mt-10 pt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <p className="text-[13px] text-fg-subtle">

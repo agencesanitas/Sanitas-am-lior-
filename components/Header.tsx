@@ -5,7 +5,8 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn, initials } from '@/lib/utils';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { PUBLIC_COPY, ROUTES, alternateLocaleHref, localizeHref, type Locale } from '@/lib/i18n';
+import { PHARMACY_PAGES } from '@/lib/pharmacy';
+import { PUBLIC_COPY, ROUTES, alternateLocaleHref, type Locale } from '@/lib/i18n';
 
 interface UserState {
   id: string;
@@ -27,10 +28,13 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
   const [userMenu, setUserMenu] = useState(false);
   const copy = PUBLIC_COPY[locale];
   const nav = [
-    { href: '/postes', label: copy.nav.jobs },
-    { href: '/etablissements', label: copy.nav.facilities },
-    { href: '/a-propos', label: copy.nav.about },
-    { href: '/contact', label: copy.nav.contact },
+    { href: ROUTES.jobs[locale], label: copy.nav.jobs },
+    {
+      href: `${ROUTES.home[locale]}#pharmacie`,
+      label: locale === 'en' ? 'Pharmacy' : 'Pharmacie',
+      active: Object.values(PHARMACY_PAGES).some((page) => pathname === page[locale]),
+    },
+    { href: ROUTES.facilities[locale], label: locale === 'en' ? 'For employers' : 'Pour les employeurs' },
   ];
   const query = searchParams.toString();
   const currentHref = `${pathname}${query ? `?${query}` : ''}`;
@@ -86,12 +90,13 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label={copy.nav.primary}>
           {nav.map((item) => {
-            const href = localizeHref(locale, item.href);
-            const active = pathname === href || pathname.startsWith(href + '/');
+            const { href } = item;
+            const active = item.active || pathname === href || pathname.startsWith(href + '/');
             return (
               <Link
                 key={item.href}
                 href={href}
+                aria-current={pathname === href ? 'page' : undefined}
                 className={cn(
                   'rounded-full px-3.5 py-1.5 text-[14.5px] transition-colors',
                   active ? 'bg-muted font-medium text-fg' : 'text-fg-muted hover:bg-muted/60 hover:text-fg'
@@ -144,12 +149,6 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
               {copy.nav.login}
             </Link>
           )}
-          <Link href={ROUTES.facilities[locale]} className="btn-secondary btn-sm">
-            {copy.nav.staffing}
-          </Link>
-          <Link href={ROUTES.jobs[locale]} className="btn-primary btn-sm">
-            {copy.nav.viewJobs}
-          </Link>
         </div>
 
         <button
@@ -171,7 +170,8 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
             {nav.map((item) => (
               <Link
                 key={item.href}
-                href={localizeHref(locale, item.href)}
+                href={item.href}
+                aria-current={pathname === item.href ? 'page' : undefined}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-[15px] text-fg hover:bg-muted"
               >
@@ -192,12 +192,6 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
               ) : (
                 <Link href={ROUTES.login[locale]} onClick={() => setOpen(false)} className="btn-secondary">{copy.nav.login}</Link>
               )}
-              <Link href={ROUTES.jobs[locale]} className="btn-primary" onClick={() => setOpen(false)}>
-                {copy.nav.viewJobs}
-              </Link>
-              <Link href={ROUTES.facilities[locale]} className="btn-secondary" onClick={() => setOpen(false)}>
-                {copy.nav.staffing}
-              </Link>
             </div>
           </div>
         </div>

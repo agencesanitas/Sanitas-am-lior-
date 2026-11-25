@@ -1,13 +1,11 @@
 import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
 import { withJobDeadline } from '@/lib/job-availability';
-import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import JobFilters from '@/components/JobFilters';
 import JobCard from '@/components/JobCard';
 import PopularSearchLinks from '@/components/PopularSearchLinks';
-import { DecorativeBlob } from '@/components/Icons';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   breadcrumbJsonLd,
@@ -117,60 +115,13 @@ export default async function PostesPage({ searchParams }: Props) {
           ],
         }}
       />
-      <section className="relative section pt-16 pb-8 overflow-hidden">
-        <DecorativeBlob className="absolute -top-32 -right-40 h-[450px] w-[450px] text-accent pointer-events-none" />
-        <div className="container-page relative">
-          <p className="eyebrow">Postes</p>
-          <h1 className="mt-2 text-display-lg text-fg">Mandats infirmiers et emplois en santé</h1>
-          <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-fg-muted">
-            Filtrez les postes par profession, pays, région, ville, établissement, département,
-            quart ou type de mandat. Pour les infirmières du Québec, les recherches clés sont
-            maintenant regroupées par régions éloignées, département et type de mandat.
-          </p>
-          {jobs.length > 0 && (
-            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-[14px] font-medium text-accent ring-1 ring-inset ring-accent/15">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-              {jobs.length} poste{jobs.length > 1 ? 's' : ''} actif{jobs.length > 1 ? 's' : ''} en ce
-              moment
-            </p>
-          )}
-        </div>
-      </section>
-
-      <section className="pb-10">
-        <div className="container-page">
-          <div className="grid gap-4 md:grid-cols-3">
-            <PriorityLink
-              href="/emplois-infirmieres-quebec"
-              eyebrow="Infirmiers au Québec"
-              title="Emplois infirmières, autorisées et cliniciennes"
-              body="Page cible pour les mandats infirmiers au Québec, avec régions, départements et quarts."
-            />
-            <PriorityLink
-              href="/mandats-infirmiers-region-eloignee"
-              eyebrow="Régions éloignées"
-              title="Baie-James, Grand Nord, Gaspésie et Côte-Nord"
-              body="Accès rapide aux mandats infirmiers en régions éloignées et aux besoins prioritaires."
-            />
-            <PriorityLink
-              href="/mandats-infirmiers-urgence-quebec"
-              eyebrow="Départements"
-              title="Urgence, soins intensifs, bloc opératoire"
-              body="Recherche par département pour les profils infirmiers spécialisés."
-            />
-          </div>
-        </div>
+      <section className="container-page pb-6 pt-9 sm:pb-8 sm:pt-12">
+        <h1 className="text-display-lg text-fg">Emplois en santé</h1>
+        <p className="mt-3 max-w-2xl text-fg-muted">Trouvez un poste en soins infirmiers, en pharmacie ou dans un autre métier de la santé.</p>
+        <div className="mt-6"><JobFilters /></div>
       </section>
 
       <section className="pb-12">
-        <div className="container-page space-y-6">
-          <JobFilters />
-          <PharmacyRecruitmentListings locale="fr" profession={param(searchParams, 'profession')} />
-          <PopularSearchLinks />
-        </div>
-      </section>
-
-      <section className="pb-24">
         <div className="container-page">
           {jobs.length === 0 ? (
             <div className="card p-10 text-center">
@@ -212,40 +163,10 @@ export default async function PostesPage({ searchParams }: Props) {
           )}
         </div>
       </section>
+      <div className="container-page space-y-10 pb-14">
+        <PharmacyRecruitmentListings locale="fr" profession={param(searchParams, 'profession')} />
+        <PopularSearchLinks />
+      </div>
     </PublicLayout>
-  );
-}
-
-function PriorityLink({
-  href,
-  eyebrow,
-  title,
-  body,
-}: {
-  href: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="card-interactive group p-5 flex flex-col"
-      data-analytics-event="jobs_priority_link_click"
-      data-analytics-label={title}
-    >
-      <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-accent">{eyebrow}</p>
-      <h2 className="mt-2 text-[18px] font-semibold leading-snug text-fg transition-colors group-hover:text-accent">
-        {title}
-      </h2>
-      <p className="mt-3 text-[14.5px] leading-relaxed text-fg-muted">{body}</p>
-      <span className="mt-4 inline-flex items-center gap-1.5 text-[14px] font-medium text-accent">
-        Explorer
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden>
-          <path d="M4 12h16" />
-          <path d="m13 5 7 7-7 7" />
-        </svg>
-      </span>
-    </Link>
   );
 }

@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { PROFESSIONS, QUEBEC_REGIONS, ALL_DEPARTMENTS } from '@/lib/constants';
-import { displayValue, localizedPath, optionLabel, type Locale } from '@/lib/i18n';
+import { PROFESSIONS, QUEBEC_REGIONS } from '@/lib/constants';
+import { localizedPath, optionLabel, type Locale } from '@/lib/i18n';
 import { useLocale } from './I18nProvider';
 
 export default function HomeSearch({ locale: localeProp }: { locale?: Locale }) {
@@ -12,29 +12,27 @@ export default function HomeSearch({ locale: localeProp }: { locale?: Locale }) 
   const router = useRouter();
   const [profession, setProfession] = useState('');
   const [region, setRegion] = useState('');
-  const [department, setDepartment] = useState('');
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const sp = new URLSearchParams();
     if (profession) sp.set('profession', profession);
     if (region) sp.set('region', region);
-    if (department) sp.set('department', department);
     router.push(`${localizedPath(locale, 'jobs')}${sp.toString() ? `?${sp.toString()}` : ''}`);
   }
 
   return (
     <form
       onSubmit={submit}
-      className="card p-3 sm:p-4 shadow-card grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]"
+      className="grid gap-2 rounded-xl border border-border bg-muted/60 p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:p-3"
     >
       <select
-        className="input border-0 bg-transparent sm:rounded-r-none"
-        aria-label={locale === 'en' ? 'Profession' : 'Profession'}
+        className="input"
+        aria-label="Profession"
         value={profession}
         onChange={(e) => setProfession(e.target.value)}
       >
-        <option value="">{locale === 'en' ? 'All professions' : 'Toutes professions'}</option>
+        <option value="">{locale === 'en' ? 'All professions' : 'Toutes les professions'}</option>
         {PROFESSIONS.map((p) => (
           <option key={p} value={p}>
             {optionLabel(locale, p)}
@@ -42,32 +40,19 @@ export default function HomeSearch({ locale: localeProp }: { locale?: Locale }) 
         ))}
       </select>
       <select
-        className="input border-0 bg-transparent sm:rounded-none"
-        aria-label={locale === 'en' ? 'Region' : 'Region'}
+        className="input"
+        aria-label={locale === 'en' ? 'Region' : 'Région'}
         value={region}
         onChange={(e) => setRegion(e.target.value)}
       >
-        <option value="">{locale === 'en' ? 'All regions' : 'Toutes regions'}</option>
+        <option value="">{locale === 'en' ? 'All regions' : 'Toutes les régions'}</option>
         {QUEBEC_REGIONS.map((r) => (
           <option key={r} value={r}>
             {r}
           </option>
         ))}
       </select>
-      <select
-        className="input border-0 bg-transparent sm:rounded-none"
-        aria-label={locale === 'en' ? 'Department' : 'Departement'}
-        value={department}
-        onChange={(e) => setDepartment(e.target.value)}
-      >
-        <option value="">{locale === 'en' ? 'All departments' : 'Tous departements'}</option>
-        {ALL_DEPARTMENTS.map((d) => (
-          <option key={d} value={d}>
-            {displayValue(locale, d)}
-          </option>
-        ))}
-      </select>
-      <button type="submit" className="btn-primary">
+      <button type="submit" className="btn-primary rounded-lg px-6">
         {locale === 'en' ? 'Search' : 'Rechercher'}
       </button>
     </form>
