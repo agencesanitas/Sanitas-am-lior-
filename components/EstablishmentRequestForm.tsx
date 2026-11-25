@@ -247,7 +247,7 @@ export default function EstablishmentRequestForm({ locale: localeProp, pharmacy 
       </label>
 
       {error && (
-        <div className="rounded-xl border border-danger/40 bg-danger-soft px-4 py-3 text-[14px] text-danger">
+        <div role="alert" className="rounded-xl border border-danger/40 bg-danger-soft px-4 py-3 text-[14px] text-danger">
           {error}
         </div>
       )}
@@ -275,12 +275,12 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <label className="label">
+    <label className="block">
+      <span className="label">
         {label}
-        {required && <span className="ml-0.5 text-danger">*</span>}
-      </label>
+        {required && <span aria-hidden="true" className="ml-0.5 text-danger">*</span>}
+      </span>
       {children}
-    </div>
+    </label>
   );
 }
