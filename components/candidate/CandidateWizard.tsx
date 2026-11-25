@@ -9,11 +9,15 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PHARMACIST, PHARMACY_ASSISTANT, type PharmacyProfession } from '@/lib/pharmacy';
+import { PHARMACIST, PHARMACY_ASSISTANT, PHARMACY_MANDATE_TYPES, PHARMACY_SOFTWARE, type PharmacyProfession } from '@/lib/pharmacy';
+import type { PharmacistApplicationAnswers } from '@/lib/pharmacist-application';
+import PharmacistQuickForm from './PharmacistQuickForm';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import { localizedPath, type Locale } from '@/lib/i18n';
 import {
   DEFAULT_JOB_COUNTRY,
+  PERMIT_STATUSES,
+  QUEBEC_REGIONS,
   INTERNATIONAL_WORK_AUTH,
   isInternationalCountry,
 } from '@/lib/constants';
@@ -31,13 +35,14 @@ import {
   loadDraft,
   useDraftAutosave,
 } from '@/lib/candidate-draft';
-import type { Candidate, DocumentRecord, ExtraQuestion, Job } from '@/types';
+import type { Candidate, CandidatePreferenceSet, DocumentRecord, ExtraQuestion, Job } from '@/types';
 import {
   buildDocumentList,
   formToCandidate,
   getStepOrder,
   makeInitialFormState,
   stepIndex,
+  uniqueStrings,
   type FormState,
   type Mode,
   type StepId,
@@ -60,6 +65,7 @@ interface CandidateWizardProps {
   mode: Mode;
   job?: Job | null;
   campaignProfession?: PharmacyProfession;
+  pharmacistAnswers?: PharmacistApplicationAnswers;
   initial: Candidate;
   initialDocuments?: Record<
     string,
@@ -88,20 +94,38 @@ export default function CandidateWizard({
   mode,
   job,
   campaignProfession,
+  pharmacistAnswers,
   initial,
   initialDocuments,
   locale = 'fr',
 }: CandidateWizardProps) {
   const router = useRouter();
   const isPosting = mode === 'posting';
+  const isPharmacistFlow = campaignProfession === PHARMACIST || job?.profession === PHARMACIST;
+  const pharmacyPreference = initial.preference_sets?.find((set) =>
+    set.label === 'Pharmacie communautaire' && set.professions.length === 1 && set.professions[0] === PHARMACIST
+  );
   const isInternationalPosting =
     isPosting && isInternationalCountry(job?.country || DEFAULT_JOB_COUNTRY);
   const stepOrder = useMemo(() => getStepOrder(mode), [mode]);
 
-  const initialForm = useMemo(
-    () => makeInitialFormState(mode, initial, job, initialDocuments),
-    [mode, initial, job, initialDocuments]
-  );
+  const initialForm = useMemo(() => {
+    const ready = makeInitialFormState(mode, initial, job, initialDocuments);
+    if (!isPharmacistFlow) return ready;
+    const software = pharmacistAnswers?.pharmacy_software || [];
+    return {
+      ...ready,
+      profession: PHARMACIST,
+      qualified_professions: uniqueStrings([PHARMACIST, ...ready.qualified_professions]),
+      permit_status: PERMIT_STATUSES.some((status) => status === ready.permit_status) ? ready.permit_status : '',
+      region_choices: !isPosting && pharmacyPreference?.regions.length ? pharmacyPreference.regions : ready.region_choices,
+      pharmacist_dsq: pharmacistAnswers?.pharmacist_dsq ?? 'unsure',
+      pharmacy_software: software.filter((name) => PHARMACY_SOFTWARE.some((option) => option === name)),
+      pharmacy_other_software: software.find((name) => !PHARMACY_SOFTWARE.some((option) => option === name)) || '',
+      pharmacy_mandate_types: (pharmacyPreference?.mandate_types || initial.preferred_mandate_types || [])
+        .filter((type) => PHARMACY_MANDATE_TYPES.some((option) => option === type)),
+    } satisfies FormState;
+  }, [isPharmacistFlow, isPosting, mode, initial, job, initialDocuments, pharmacistAnswers, pharmacyPreference]);
   const reusedDocTypes = useMemo(
     () => new Set(Object.keys(initialDocuments || {})),
     [initialDocuments]
@@ -200,7 +224,7 @@ export default function CandidateWizard({
 
   function applyDraft() {
     if (!draftPrompt) return;
-    setForm(draftPrompt.data);
+    setForm(isPharmacistFlow ? { ...initialForm, ...draftPrompt.data } : draftPrompt.data);
     setDraftPrompt(null);
   }
 
@@ -339,11 +363,30 @@ export default function CandidateWizard({
     setSubmitting(true);
     try {
       const documentList = buildDocumentList(form, job);
-      const documentsForSubmission = isPosting
+      const documentsForSubmission = isPosting || isPharmacistFlow
         ? documentList.filter((document) => document.type === 'CV')
         : documentList;
       const candidate = formToCandidate(initial, form);
-      const syncedPreferenceSets = form.preference_sets.length > 0
+      const primaryProfession = isPharmacistFlow ? PHARMACIST : form.profession;
+      const qualifiedProfessions = isPharmacistFlow
+        ? uniqueStrings([PHARMACIST, ...initialForm.qualified_professions])
+        : form.qualified_professions;
+      const regions = isPharmacistFlow
+        ? form.region_choices.filter(({ region }) => QUEBEC_REGIONS.includes(region))
+        : form.region_choices;
+      const pharmacistPreferenceSet: CandidatePreferenceSet = {
+        ...(!isPosting && pharmacyPreference ? pharmacyPreference : {}),
+        label: isPosting ? 'Candidature en pharmacie' : 'Pharmacie communautaire',
+        priority: 1,
+        professions: [PHARMACIST],
+        regions,
+        departments: [],
+        shifts: [],
+        mandate_types: isPosting && job?.mandate_type ? [job.mandate_type] : form.pharmacy_mandate_types || [],
+        start_date: form.start_availability || null,
+        active: true,
+      };
+      const syncedPreferenceSets = isPharmacistFlow ? [pharmacistPreferenceSet] : form.preference_sets.length > 0
         ? form.preference_sets.map((set, index) =>
             index === 0
               ? {
@@ -371,12 +414,12 @@ export default function CandidateWizard({
           city_residence: form.city_residence.trim() || null,
           region_residence: form.region_residence || null,
           postal_code: form.postal_code.trim() || null,
-          profession: form.profession || null,
-          qualified_professions: form.qualified_professions,
+          profession: primaryProfession || null,
+          qualified_professions: qualifiedProfessions,
           work_authorization: form.work_authorization || null,
           languages: form.languages,
           consent_data: form.consent_data,
-          mailing_list_opt_in: form.mailing_list_opt_in,
+          mailing_list_opt_in: isPharmacistFlow ? initial.mailing_list_opt_in ?? false : form.mailing_list_opt_in,
         },
         answers: {
           preferred_contact: form.preferred_contact,
@@ -386,11 +429,13 @@ export default function CandidateWizard({
           city_residence: form.city_residence,
           region_residence: form.region_residence,
           postal_code: form.postal_code,
-          profession: form.profession,
-          qualified_professions: form.qualified_professions,
+          profession: primaryProfession,
+          qualified_professions: qualifiedProfessions,
           years_experience: form.years_experience,
           permit_status: form.permit_status,
-          permit_number: form.permit_number,
+          permit_number: isPharmacistFlow && form.permit_status === 'Non' ? null : form.permit_number,
+          pharmacist_dsq: isPharmacistFlow ? form.pharmacist_dsq ?? 'unsure' : undefined,
+          pharmacy_software: isPharmacistFlow ? uniqueStrings([...(form.pharmacy_software || []), form.pharmacy_other_software?.trim()]) : undefined,
           pharmacy_training: form.qualified_professions.includes(PHARMACY_ASSISTANT) ? form.pharmacy_training?.trim() : undefined,
           mobility: form.mobility,
           start_availability: form.start_availability,
@@ -398,7 +443,7 @@ export default function CandidateWizard({
           exact_start_date: form.exact_start_date,
           shifts_accepted: form.shifts_accepted,
           weekend_two_in_one: form.weekend_two_in_one,
-          region_choices: form.region_choices,
+          region_choices: regions,
           preferred_establishments: form.preferred_establishments,
           avoided_establishments: form.avoided_establishments,
           preferred_departments: form.preferred_departments,
@@ -415,7 +460,7 @@ export default function CandidateWizard({
           interview_slots: form.interview_slots.filter((s) => !!s),
         },
         completion_score: computeQuickCompletionScore(form),
-        source: campaignProfession ? 'web-pharmacy' : 'web',
+        source: isPharmacistFlow || campaignProfession ? 'web-pharmacy' : 'web',
         documents: documentsForSubmission.map((document) => ({
           document_id: form.documents[document.type]?.document_id || null,
           document_type: document.type,
@@ -493,7 +538,7 @@ export default function CandidateWizard({
   // Raccourci : profil entièrement complet en mode posting → jump direct
   // -----------------------------------------------------------------
   const canJumpToReview = useMemo(() => {
-    if (!isPosting) return false;
+    if (!isPosting || isPharmacistFlow) return false;
     if (step !== 'identity') return false;
     const steps = stepOrder.filter((s) => s !== 'review');
     for (const s of steps) {
@@ -503,7 +548,7 @@ export default function CandidateWizard({
     // runStepValidation dépend de form, donc on observe form indirectement
     // via la closure ; ESLint exhaustive-deps n'aime pas, on l'ignore.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, isPosting, step, job, stepOrder]);
+  }, [form, isPharmacistFlow, isPosting, step, job, stepOrder]);
 
   function jumpToReview() {
     setErrors({});
@@ -556,6 +601,23 @@ export default function CandidateWizard({
   }, [isPosting, locale]);
   const isLastStep = step === 'review';
   const jobLabel = isPosting && job ? job.title : null;
+
+  if (isPharmacistFlow) {
+    return (
+      <PharmacistQuickForm
+        form={form}
+        setForm={setForm}
+        locale={locale}
+        jobTitle={jobLabel}
+        onSubmit={handleSubmit}
+        submitting={submitting}
+        submitError={submitError}
+        draftBanner={draftPrompt && (
+          <ResumeDraftBanner ageLabel={draftPrompt.ageLabel} onResume={applyDraft} onDiscard={discardDraft} locale={locale} />
+        )}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
@@ -622,6 +684,9 @@ function draftFillScore(form: FormState): number {
   if (form.region_residence) score++;
   if (form.qualified_professions.length > 0) score++;
   if (form.years_experience) score++;
+  if (form.pharmacist_dsq && form.pharmacist_dsq !== 'unsure') score++;
+  if (form.pharmacy_software?.length || form.pharmacy_other_software) score++;
+  if (form.pharmacy_mandate_types?.length) score++;
   if (form.languages.length > 0) score++;
   if (form.work_authorization) score++;
   if (form.start_availability) score++;

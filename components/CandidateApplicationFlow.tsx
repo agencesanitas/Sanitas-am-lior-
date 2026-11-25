@@ -17,6 +17,7 @@
 
 import CandidateWizard from './candidate/CandidateWizard';
 import { type PharmacyProfession } from '@/lib/pharmacy';
+import type { PharmacistApplicationAnswers } from '@/lib/pharmacist-application';
 import type { Locale } from '@/lib/i18n';
 import type { Candidate, DocumentRecord, Job } from '@/types';
 
@@ -26,6 +27,7 @@ interface CandidateApplicationFlowProps {
   mode: Mode;
   job?: Job | null;
   campaignProfession?: PharmacyProfession;
+  pharmacistAnswers?: PharmacistApplicationAnswers;
   initial: Candidate;
   initialDocuments?: Record<
     string,

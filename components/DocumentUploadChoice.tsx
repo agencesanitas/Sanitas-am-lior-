@@ -14,6 +14,7 @@ interface DocumentUploadChoiceProps {
   value?: { document_id?: string | null; status: string; file_name?: string | null; file_path?: string | null };
   onChange: (next: { document_id?: string | null; status: string; file_name?: string | null; file_path?: string | null }) => void;
   locale?: Locale;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 export default function DocumentUploadChoice({
@@ -23,6 +24,7 @@ export default function DocumentUploadChoice({
   reused = false,
   value,
   onChange,
+  onUploadingChange,
   locale: localeProp,
 }: DocumentUploadChoiceProps) {
   const contextLocale = useLocale();
@@ -45,6 +47,7 @@ export default function DocumentUploadChoice({
     }
     setError(null);
     setUploading(true);
+    onUploadingChange?.(true);
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -66,6 +69,7 @@ export default function DocumentUploadChoice({
       setError(msg);
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 

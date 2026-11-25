@@ -35,3 +35,13 @@ export function prefillPharmacyCandidate(candidate: Candidate, profession: Pharm
     ),
   };
 }
+
+export const DSQ_ACCESS_OPTIONS = [
+  { value: 'active', fr: 'Oui, j’ai déjà un accès', en: 'Yes, I already have access' },
+  { value: 'to_set_up', fr: 'Accès à obtenir ou à réactiver', en: 'Access needs to be set up or reactivated' },
+  { value: 'unsure', fr: 'À confirmer', en: 'To be confirmed' },
+] as const;
+
+export type DsqAccess = (typeof DSQ_ACCESS_OPTIONS)[number]['value'];
+
+export const PHARMACY_SOFTWARE = ['RxPro', 'Assyst Rx', 'Ubik', 'PrioRx', 'ReflexRx / XD3', 'Gesphar', 'Logipharm'] as const;

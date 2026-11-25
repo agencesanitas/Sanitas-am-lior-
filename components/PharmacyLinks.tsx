@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { PHARMACIST, PHARMACY_ASSISTANT, PHARMACY_PAGES, PHARMACY_PAY_MAX } from '@/lib/pharmacy';
-import type { Locale } from '@/lib/i18n';
+import { localizedPath, type Locale } from '@/lib/i18n';
 
 export function PharmacyLinks({ locale }: { locale: Locale }) {
   const en = locale === 'en';
@@ -19,7 +19,9 @@ export function PharmacyLinks({ locale }: { locale: Locale }) {
   );
 }
 
-export function PharmacyRecruitmentListings({ locale, profession }: { locale: Locale; profession?: string }) {
+export function PharmacyRecruitmentListings({
+  locale, profession, featured = false,
+}: { locale: Locale; profession?: string; featured?: boolean }) {
   const en = locale === 'en';
   const roles = [
     {
@@ -39,19 +41,30 @@ export function PharmacyRecruitmentListings({ locale, profession }: { locale: Lo
   if (!roles.length) return null;
 
   return (
-    <section className="my-6" aria-labelledby="pharmacy-recruitment">
+    <section className={featured ? "my-6 rounded-2xl border border-border bg-accent-soft p-4 sm:p-6" : "my-6"} aria-labelledby="pharmacy-recruitment">
       <h2 className="mb-3 text-xl font-semibold text-fg" id="pharmacy-recruitment">
-        {en ? 'Recruiting for pharmacies' : 'Recrutement en pharmacie'}
+        {featured
+          ? (en ? 'Featured jobs in pharmacy' : 'Annonces vedettes en pharmacie')
+          : (en ? 'Recruiting for pharmacies' : 'Recrutement en pharmacie')}
       </h2>
       <div className="grid gap-3 sm:grid-cols-2">
-        {roles.map(({ href, title, rate }) => (
-          <Link key={href} href={href} className="card-interactive p-4 block">
-            <h3 className="font-semibold text-fg">{title} <span aria-hidden="true">→</span></h3>
+        {roles.map(({ href, title, rate, profession: role }) => (
+          <article key={href} className="card flex flex-col items-start p-4 sm:p-5">
+            <h3 className="font-semibold text-fg">
+              <Link href={href} className="hover:text-accent hover:underline">{title}</Link>
+            </h3>
             <p className="mt-1 text-sm text-accent">
               {en ? `Up to $${rate}/h on select assignments` : `Jusqu’à ${rate} $/h pour certains mandats`}
             </p>
             <p className="mt-1 text-sm text-fg-muted">{en ? 'Multiple regions in Quebec' : 'Plusieurs régions du Québec'}</p>
-          </Link>
+            <Link
+              href={localizedPath(locale, 'apply', `?profession=${encodeURIComponent(role)}`)}
+              className="btn-primary btn-sm mt-4"
+              aria-label={en ? `Apply for ${title}` : `Postuler comme ${title}`}
+            >
+              {en ? 'Apply' : 'Postuler'}
+            </Link>
+          </article>
         ))}
       </div>
     </section>

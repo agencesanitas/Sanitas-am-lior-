@@ -211,6 +211,8 @@ export const submissionAnswersSchema = z.object({
   permit_status: optionalString,
   permit_number: optionalString,
   pharmacy_training: z.string().max(500).optional().nullable(),
+  pharmacist_dsq: z.enum(['active', 'to_set_up', 'unsure']).optional(),
+  pharmacy_software: z.array(z.string().trim().min(1).max(120)).max(12).optional(),
   mobility: optionalString,
   start_availability: optionalString,
   preferred_hours: optionalString,

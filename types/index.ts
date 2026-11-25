@@ -230,6 +230,8 @@ export interface SubmissionAnswers {
   permit_status?: string;
   permit_number?: string;
   pharmacy_training?: string;
+  pharmacist_dsq?: import('@/lib/pharmacy').DsqAccess;
+  pharmacy_software?: string[];
   mobility?: string;
   start_availability?: string;
   preferred_hours?: string;

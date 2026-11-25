@@ -1,4 +1,6 @@
 begin;
+set local lock_timeout = '5s';
+set local statement_timeout = '30s';
 
 alter table public.jobs
   add column if not exists application_deadline date,
@@ -24,13 +26,11 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_jobs_published_at on public.jobs;
-create trigger trg_jobs_published_at before insert or update on public.jobs
+create or replace trigger trg_jobs_published_at before insert or update on public.jobs
 for each row execute function public.set_job_published_at();
 
-drop policy if exists "public read active jobs" on public.jobs;
-create policy "public read active jobs" on public.jobs
-  for select to anon, authenticated
+alter policy "public read active jobs" on public.jobs
+  to anon, authenticated
   using (
     status = 'active' and (
       application_deadline is null or application_deadline >= (now() at time zone 'America/Toronto')::date

@@ -1,5 +1,6 @@
+import { getPharmacistApplicationAnswers } from '@/lib/pharmacist-application';
 import { isOpenJob } from '@/lib/job-availability';
-import { isPharmacyProfession, prefillPharmacyCandidate } from '@/lib/pharmacy';
+import { PHARMACIST, isPharmacyProfession, prefillPharmacyCandidate } from '@/lib/pharmacy';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -125,9 +126,11 @@ export default async function PostulerPage({ searchParams }: Props) {
   const pharmacyProfession = !selectedJob && isPharmacyProfession(searchParams.profession)
     ? searchParams.profession
     : undefined;
-  const [documents, existingPosting] = await Promise.all([
+  const isPharmacistFlow = selectedJob?.profession === PHARMACIST || pharmacyProfession === PHARMACIST;
+  const [documents, existingPosting, pharmacistAnswers] = await Promise.all([
     fetchReusableDocuments(candidate.id),
     selectedJob ? fetchExistingPosting(candidate.id, selectedJob.id) : Promise.resolve(null),
+    isPharmacistFlow ? getPharmacistApplicationAnswers(candidate.id) : Promise.resolve(undefined),
   ]);
 
   if (selectedJob && existingPosting) {
@@ -139,8 +142,9 @@ export default async function PostulerPage({ searchParams }: Props) {
       <CandidateApplicationFlow
         mode={mode}
         job={selectedJob}
-        initial={pharmacyProfession ? prefillPharmacyCandidate(candidate, pharmacyProfession) : candidate}
+        initial={pharmacyProfession && !isPharmacistFlow ? prefillPharmacyCandidate(candidate, pharmacyProfession) : candidate}
         campaignProfession={pharmacyProfession}
+        pharmacistAnswers={pharmacistAnswers}
         initialDocuments={documents}
       />
     </PublicLayout>

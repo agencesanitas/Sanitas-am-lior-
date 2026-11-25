@@ -22,6 +22,7 @@ import {
   laneForStatus,
 } from '@/lib/ats-operating-model';
 import { cn, formatDateTime } from '@/lib/utils';
+import { DSQ_ACCESS_OPTIONS } from '@/lib/pharmacy';
 import type {
   ActivityEvent,
   Application,
@@ -135,6 +136,8 @@ export default async function CandidateDetail({ params }: { params: { id: string
   const data = await fetchCandidate(params.id);
   if (!data) notFound();
   const { candidate, applications, documents, notes, tasks, events, matches } = data;
+  const pharmacyAnswers = applications.find(({ answers }) => answers?.pharmacist_dsq)?.answers;
+  const declaredDsq = DSQ_ACCESS_OPTIONS.find((option) => option.value === pharmacyAnswers?.pharmacist_dsq)?.fr;
   const currentDocs = documents.filter((doc) => doc.is_current !== false);
   const missingDocs = missingRequiredDocuments(candidate, currentDocs);
   const requiredDocs = requiredDocumentsForProfessions(
@@ -298,6 +301,10 @@ export default async function CandidateDetail({ params }: { params: { id: string
               <Info label="Formation ATP" value={applications.find((application) => application.answers?.pharmacy_training)?.answers.pharmacy_training} />
               <Info label="Permis" value={candidate.permit_status} />
               <Info label="Numéro de permis" value={candidate.permit_number} />
+              {declaredDsq && <Info label="Accès DSQ déclaré" value={declaredDsq} />}
+              {pharmacyAnswers?.pharmacy_software?.length ? (
+                <Info label="Logiciels de pharmacie" value={pharmacyAnswers.pharmacy_software.join(', ')} />
+              ) : null}
               <Info label="Départ" value={candidate.start_availability} />
               <Info label="Heures" value={candidate.preferred_hours} />
               <Info label="Quarts" value={(candidate.preferred_shifts || []).join(', ')} />

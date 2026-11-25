@@ -1,4 +1,4 @@
-import { PharmacyLinks } from '@/components/PharmacyLinks';
+import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
 import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -248,7 +248,7 @@ export default async function HomePage() {
         </div>
       </section>
         <div className="container-page">
-          <PharmacyLinks locale="fr" />
+          <PharmacyRecruitmentListings locale="fr" featured />
         </div>
 
       {/* Bandeau de réassurance : stats structurées + permis CNESST */}

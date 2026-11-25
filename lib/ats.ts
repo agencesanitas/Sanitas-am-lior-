@@ -1,3 +1,4 @@
+import { PHARMACIST } from '@/lib/pharmacy';
 import {
   DOCUMENT_TYPES,
   professionCovers,
@@ -108,15 +109,17 @@ export function candidateFromApplicationAnswers(candidate: Candidate, answers: S
 }
 
 export function requiredDocumentsForProfession(profession?: string | null): string[] {
-  const docs = new Set<string>(['CV', 'RCR', 'Carnet de vaccination']);
+  const docs = new Set<string>(profession === PHARMACIST ? ['CV'] : ['CV', 'RCR', 'Carnet de vaccination']);
   if (professionRequiresPermit(profession)) docs.add("Permis d'exercice");
   if (professionRequiresPDSB(profession)) docs.add('PDSB');
   return DOCUMENT_TYPES.filter((doc) => docs.has(doc));
 }
 
 export function requiredDocumentsForProfessions(professions: Array<string | null | undefined>): string[] {
-  const docs = new Set<string>(['CV', 'RCR', 'Carnet de vaccination']);
-  for (const profession of professions) {
+  const roles = professions.filter(Boolean);
+  const pharmacyOnly = roles.length > 0 && roles.every((role) => role === PHARMACIST);
+  const docs = new Set<string>(pharmacyOnly ? ['CV'] : ['CV', 'RCR', 'Carnet de vaccination']);
+  for (const profession of roles) {
     if (professionRequiresPermit(profession)) docs.add("Permis d'exercice");
     if (professionRequiresPDSB(profession)) docs.add('PDSB');
   }

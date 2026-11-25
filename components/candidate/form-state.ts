@@ -46,6 +46,10 @@ export interface FormState {
   permit_status: string;
   permit_number: string;
   pharmacy_training: string;
+  pharmacist_dsq?: import('@/lib/pharmacy').DsqAccess;
+  pharmacy_software?: string[];
+  pharmacy_other_software?: string;
+  pharmacy_mandate_types?: string[];
   languages: string[];
   work_authorization: string;
   mobility: string;

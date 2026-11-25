@@ -17,12 +17,12 @@ const CAREERS = {
     fr: {
       title: 'Emplois de pharmacien au Québec',
       description: 'Postulez auprès de Sanitas pour des remplacements ou des postes permanents en pharmacie communautaire dans plusieurs régions du Québec.',
-      qualification: 'Indiquez votre expérience, votre statut auprès de l’Ordre des pharmaciens du Québec et les régions où vous souhaitez exercer.',
+      qualification: 'Joignez votre CV et indiquez vos régions, le statut de votre permis et votre accès au DSQ. Les logiciels que vous maîtrisez peuvent aussi nous aider à trouver le bon mandat.',
     },
     en: {
       title: 'Pharmacist jobs in Quebec',
       description: 'Apply with Sanitas for relief or permanent positions in community pharmacies across Quebec.',
-      qualification: 'Tell us about your experience, your registration status with the Ordre des pharmaciens du Québec and where you are available to work.',
+      qualification: 'Attach your resume and tell us where you can work, your licence status and whether you have DSQ access. The software you know can help us match you with the right opening.',
     },
   },
   assistant: {
