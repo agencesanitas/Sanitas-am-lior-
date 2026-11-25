@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isOpenJob } from '@/lib/job-availability';
 import { revalidatePath } from 'next/cache';
 import { applicationSchema } from '@/lib/validation';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -113,7 +114,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: 'Mandat introuvable.' }, { status: 404 });
     }
     job = data as Job;
-    if (job.status !== 'active') {
+    if (!isOpenJob(job)) {
       return NextResponse.json({ ok: false, error: "Ce mandat n'est plus actif." }, { status: 410 });
     }
     jobId = job.id;

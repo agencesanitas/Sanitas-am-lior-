@@ -100,6 +100,8 @@ create table public.jobs (
   duration_en text,
   salary text,
   salary_en text,
+  application_deadline date,
+  published_at timestamptz,
   urgency text not null default 'normal' check (urgency in ('normal', 'high', 'urgent')),
   requirements text,
   requirements_en text,
@@ -114,6 +116,26 @@ create table public.jobs (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create or replace function public.set_job_published_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.status = 'active' and new.published_at is null then
+    if tg_op = 'UPDATE' and old.status = 'active' then
+      new.published_at := old.created_at;
+    else
+      new.published_at := now();
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_jobs_published_at before insert or update on public.jobs
+for each row execute function public.set_job_published_at();
 
 create index idx_jobs_status on public.jobs(status);
 create index idx_jobs_profession on public.jobs(profession);
@@ -393,6 +415,7 @@ create table public.establishment_requests (
   city text,
   department text,
   profession_requested text,
+  mandate_type text,
   number_of_resources integer,
   shift text,
   start_date text,
@@ -472,7 +495,7 @@ create policy "public read active job titles" on public.job_titles
 
 drop policy if exists "public read active jobs" on public.jobs;
 create policy "public read active jobs" on public.jobs
-  for select to anon, authenticated using (status = 'active');
+  for select to anon, authenticated using (status = 'active' and (application_deadline is null or application_deadline >= (now() at time zone 'America/Toronto')::date));
 
 -- Admin full access on operational tables.
 drop policy if exists "admin manage job titles" on public.job_titles;

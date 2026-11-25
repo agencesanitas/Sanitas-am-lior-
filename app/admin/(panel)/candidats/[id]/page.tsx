@@ -295,6 +295,7 @@ export default async function CandidateDetail({ params }: { params: { id: string
               <Info label="Métier principal" value={candidate.profession} />
               <Info label="Métiers admissibles" value={(candidate.qualified_professions || []).join(', ')} />
               <Info label="Expérience" value={candidate.years_experience} />
+              <Info label="Formation ATP" value={applications.find((application) => application.answers?.pharmacy_training)?.answers.pharmacy_training} />
               <Info label="Permis" value={candidate.permit_status} />
               <Info label="Numéro de permis" value={candidate.permit_number} />
               <Info label="Départ" value={candidate.start_availability} />

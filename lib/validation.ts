@@ -1,3 +1,6 @@
+import { QUEBEC_REGIONS } from './constants';
+import { isPharmacyProfession, PHARMACY_MANDATE_TYPES } from './pharmacy';
+import { quebecDate } from './job-availability';
 // =====================================================================
 // Agence Sanitas - Schémas Zod
 // =====================================================================
@@ -77,6 +80,7 @@ export const jobSchema = z.object({
   duration_en: optionalString,
   salary: optionalString,
   salary_en: optionalString,
+  application_deadline: z.string().date().optional().nullable().or(z.literal('')),
   urgency: z.enum(['normal', 'high', 'urgent']).default('normal'),
   requirements: optionalLongString,
   requirements_en: optionalLongString,
@@ -87,6 +91,33 @@ export const jobSchema = z.object({
   required_documents: z.array(z.string()).default([]),
   extra_questions: z.array(extraQuestionSchema).default([]),
   status: z.enum(['active', 'inactive', 'draft']).default('active'),
+}).superRefine((job, ctx) => {
+  if (job.status !== 'active' || !isPharmacyProfession(job.profession)) return;
+
+  const required = {
+    city: job.city,
+    description: job.description,
+    schedule: job.schedule,
+    start_date: job.start_date,
+    requirements: job.requirements,
+    salary: job.salary,
+  };
+  for (const [field, value] of Object.entries(required)) {
+    if (!value?.trim()) {
+      ctx.addIssue({ code: 'custom', path: [field], message: 'Pour publier un poste en pharmacie, renseignez la ville, la description, l’horaire, le début, les exigences et le taux confirmé.' });
+      return;
+    }
+  }
+  if (job.country !== 'Canada' || !QUEBEC_REGIONS.includes(job.region)) {
+    ctx.addIssue({ code: 'custom', path: ['region'], message: 'Sélectionnez le Canada et la région du Québec où se trouve la pharmacie.' });
+  }
+  const isPharmacyMandate = PHARMACY_MANDATE_TYPES.some((type) => type === job.mandate_type);
+  if (!isPharmacyMandate || (job.mandate_type === 'Remplacement' && !job.duration?.trim())) {
+    ctx.addIssue({ code: 'custom', path: ['mandate_type'], message: 'Choisissez Permanent ou Remplacement. Pour un remplacement, indiquez aussi la durée.' });
+  }
+  if (!job.application_deadline || job.application_deadline < quebecDate()) {
+    ctx.addIssue({ code: 'custom', path: ['application_deadline'], message: 'Indiquez une date limite de candidature à venir.' });
+  }
 });
 
 export type JobInput = z.infer<typeof jobSchema>;
@@ -179,6 +210,7 @@ export const submissionAnswersSchema = z.object({
   years_experience: optionalString,
   permit_status: optionalString,
   permit_number: optionalString,
+  pharmacy_training: z.string().max(500).optional().nullable(),
   mobility: optionalString,
   start_availability: optionalString,
   preferred_hours: optionalString,
@@ -324,6 +356,7 @@ export const establishmentRequestSchema = z
     city: optionalString,
     department: optionalString,
     profession_requested: nonEmpty('Profession recherchée'),
+    mandate_type: z.enum(PHARMACY_MANDATE_TYPES).nullable().optional(),
     number_of_resources: z.number().int().positive().max(100).optional().nullable(),
     shift: optionalString,
     start_date: optionalString,
@@ -331,6 +364,14 @@ export const establishmentRequestSchema = z
     urgency: optionalString,
     details: optionalString,
     consent_contact: z.boolean(),
+  })
+  .refine((v) => !isPharmacyProfession(v.profession_requested) || !!v.city?.trim(), {
+    message: 'La ville de la pharmacie est requise',
+    path: ['city'],
+  })
+  .refine((v) => !isPharmacyProfession(v.profession_requested) || !!v.mandate_type, {
+    message: 'Le service souhaité est requis',
+    path: ['mandate_type'],
   })
   .refine(
     (v) => (v.phone && v.phone.trim().length > 0) || (v.email && v.email.trim().length > 0),

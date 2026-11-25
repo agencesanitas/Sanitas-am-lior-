@@ -1,3 +1,5 @@
+import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
@@ -43,7 +45,7 @@ async function fetchJobs(sp: Props['searchParams']): Promise<Job[]> {
   noStore();
   try {
     const supabase = createSupabaseAdminClient();
-    let q = supabase.from('jobs').select('*').eq('status', 'active');
+    let q = supabase.from('jobs').select('*').eq('status', 'active').or(jobDeadlineFilter());
 
     const profession = param(sp, 'profession');
     const country = param(sp, 'country');
@@ -133,6 +135,7 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
       <section className="pb-12">
         <div className="container-page space-y-6">
           <JobFilters locale="en" />
+          <PharmacyRecruitmentListings locale="en" profession={param(searchParams, 'profession')} />
           <PopularSearchLinks locale="en" />
         </div>
       </section>

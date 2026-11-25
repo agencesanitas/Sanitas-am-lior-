@@ -107,6 +107,8 @@ export interface Job {
   duration_en?: string | null;
   salary: string | null;
   salary_en?: string | null;
+  application_deadline?: string | null;
+  published_at?: string | null;
   urgency: Urgency;
   requirements: string | null;
   requirements_en?: string | null;
@@ -227,6 +229,7 @@ export interface SubmissionAnswers {
   years_experience?: string;
   permit_status?: string;
   permit_number?: string;
+  pharmacy_training?: string;
   mobility?: string;
   start_availability?: string;
   preferred_hours?: string;
@@ -461,6 +464,7 @@ export interface EstablishmentRequest {
   city: string | null;
   department: string | null;
   profession_requested: string | null;
+  mandate_type?: string | null;
   number_of_resources: number | null;
   shift: string | null;
   start_date: string | null;

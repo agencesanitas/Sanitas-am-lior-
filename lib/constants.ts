@@ -2,6 +2,8 @@
 // Agence Sanitas - Constantes partagées
 // =====================================================================
 
+import { PHARMACIST, PHARMACY_ASSISTANT } from './pharmacy';
+
 export const COMPANY = {
   name: 'Agence Sanitas',
   tagline: 'Agence de placement en santé',
@@ -102,7 +104,8 @@ export const PROFESSIONS: string[] = [
   'Travailleur(se) social(e)',
   'Psychologue',
   'Technologue en radiologie',
-  'Pharmacien(ne)',
+  PHARMACIST,
+  PHARMACY_ASSISTANT,
   'Nutritionniste',
   'Médecin',
   'Agent(e) administratif(ve)',
@@ -118,7 +121,7 @@ export const PROFESSIONS_REQUIRING_PERMIT = new Set<string>([
   'Travailleur(se) social(e)',
   'Psychologue',
   'Technologue en radiologie',
-  'Pharmacien(ne)',
+  PHARMACIST,
   'Nutritionniste',
   'Médecin',
 ]);

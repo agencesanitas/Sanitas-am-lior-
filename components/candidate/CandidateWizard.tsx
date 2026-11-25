@@ -9,6 +9,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PHARMACIST, PHARMACY_ASSISTANT, type PharmacyProfession } from '@/lib/pharmacy';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import { localizedPath, type Locale } from '@/lib/i18n';
 import {
@@ -58,6 +59,7 @@ import {
 interface CandidateWizardProps {
   mode: Mode;
   job?: Job | null;
+  campaignProfession?: PharmacyProfession;
   initial: Candidate;
   initialDocuments?: Record<
     string,
@@ -85,6 +87,7 @@ const STEP_TITLES_EN: Record<StepId, string> = {
 export default function CandidateWizard({
   mode,
   job,
+  campaignProfession,
   initial,
   initialDocuments,
   locale = 'fr',
@@ -167,8 +170,8 @@ export default function CandidateWizard({
   // Sauvegarde automatique (localStorage, debounced)
   // -----------------------------------------------------------------
   const storageKey = useMemo(
-    () => draftKey({ candidateId: initial.id, mode, jobId: job?.id }),
-    [initial.id, mode, job?.id]
+    () => draftKey({ candidateId: initial.id, mode, jobId: job?.id, campaignProfession }),
+    [initial.id, mode, job?.id, campaignProfession]
   );
 
   // Bandeau « Reprendre où tu t'étais arrêté » : on cherche un brouillon
@@ -247,11 +250,19 @@ export default function CandidateWizard({
           locale,
           residenceKind: isInternationalPosting ? 'country' : 'region',
         });
-      case 'work':
-        return validateWorkStep(stepInput, mode, {
+      case 'work': {
+        const workErrors = validateWorkStep(stepInput, mode, {
           locale,
           internationalWorkAuthorization: isInternationalPosting,
         });
+        if (form.qualified_professions.includes(PHARMACIST) && !form.permit_status) {
+          workErrors.permit_status = locale === 'en' ? 'Select your registration status.' : 'Indique ton statut auprès de l’Ordre.';
+        }
+        if (form.qualified_professions.includes(PHARMACY_ASSISTANT) && !form.pharmacy_training?.trim()) {
+          workErrors.pharmacy_training = locale === 'en' ? 'Tell us about your pharmacy training.' : 'Indique ta formation en pharmacie.';
+        }
+        return workErrors;
+      }
       case 'availability':
         return validateAvailabilityStep(stepInput, mode, {
           locale,
@@ -380,6 +391,7 @@ export default function CandidateWizard({
           years_experience: form.years_experience,
           permit_status: form.permit_status,
           permit_number: form.permit_number,
+          pharmacy_training: form.qualified_professions.includes(PHARMACY_ASSISTANT) ? form.pharmacy_training?.trim() : undefined,
           mobility: form.mobility,
           start_availability: form.start_availability,
           preferred_hours: form.preferred_hours,
@@ -403,7 +415,7 @@ export default function CandidateWizard({
           interview_slots: form.interview_slots.filter((s) => !!s),
         },
         completion_score: computeQuickCompletionScore(form),
-        source: 'web',
+        source: campaignProfession ? 'web-pharmacy' : 'web',
         documents: documentsForSubmission.map((document) => ({
           document_id: form.documents[document.type]?.document_id || null,
           document_type: document.type,
@@ -432,6 +444,7 @@ export default function CandidateWizard({
       }
       trackAnalyticsEvent('candidate_application_submit_success', {
         mode,
+        profile_profession: job?.profession || form.profession,
         job_id: job?.id,
         job_title: job?.title,
         job_country: job?.country,

@@ -1,9 +1,12 @@
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import type { MetadataRoute } from 'next';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getLocalSeoRoutes } from '@/lib/local-seo-pages';
 import { INDEXABLE_STATIC_ROUTES, STATIC_SEO_LAST_MODIFIED } from '@/lib/indexation';
 import { absoluteUrl, languageAlternates } from '@/lib/seo';
 import type { Job } from '@/types';
+
+export const dynamic = 'force-dynamic';
 
 const allStaticRoutes = [...INDEXABLE_STATIC_ROUTES, ...getLocalSeoRoutes()];
 
@@ -33,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await supabase
       .from('jobs')
       .select('id, updated_at, created_at, status')
-      .eq('status', 'active')
+      .eq('status', 'active').or(jobDeadlineFilter())
       .order('updated_at', { ascending: false })
       .limit(1000);
 

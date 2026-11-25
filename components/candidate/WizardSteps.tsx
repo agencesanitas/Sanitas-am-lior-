@@ -8,6 +8,7 @@
 
 'use client';
 
+import { PHARMACIST, PHARMACY_ASSISTANT } from '@/lib/pharmacy';
 import type { Dispatch, SetStateAction } from 'react';
 import DepartmentGroups from '@/components/DepartmentGroups';
 import DocumentUploadChoice from '@/components/DocumentUploadChoice';
@@ -267,6 +268,8 @@ export function StepWork({ form, setForm, errors, mode, job, locale }: StepProps
     isPosting && job?.profession
       ? PROFESSIONS.filter((profession) => professionListCovers([profession], job.profession))
       : PROFESSIONS;
+  const isPharmacist = form.qualified_professions.includes(PHARMACIST);
+  const isPharmacyAssistant = form.qualified_professions.includes(PHARMACY_ASSISTANT);
   const workAuthorizationOptions = isInternationalPosting ? INTERNATIONAL_WORK_AUTH : WORK_AUTH;
 
   return (
@@ -360,9 +363,29 @@ export function StepWork({ form, setForm, errors, mode, job, locale }: StepProps
         />
       </Field>
 
+      {isPharmacyAssistant && (
+        <Field
+          label={tr(locale, 'Formation en assistance technique en pharmacie', 'Pharmacy assistant training')}
+          required
+          error={errors.pharmacy_training}
+        >
+          <input
+            className="input"
+            maxLength={500}
+            value={form.pharmacy_training ?? ''}
+            placeholder={tr(locale, 'DEP, reconnaissance des acquis ou autre parcours', 'Diploma, prior learning recognition or other training')}
+            onChange={(e) => setField(setForm, 'pharmacy_training', e.target.value)}
+          />
+        </Field>
+      )}
+
       {needsPermitField && (
         <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-4">
-          <Field label={tr(locale, "Permis d'exercice", 'Professional permit')}>
+          <Field
+            label={isPharmacist ? tr(locale, 'Statut auprès de l’Ordre des pharmaciens du Québec', 'Registration with the Ordre des pharmaciens du Québec') : tr(locale, "Permis d'exercice", 'Professional permit')}
+            required={isPharmacist}
+            error={errors.permit_status}
+          >
             <SegmentedChoices
               options={PERMIT_STATUSES}
               value={form.permit_status}

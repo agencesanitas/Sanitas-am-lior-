@@ -1,12 +1,14 @@
 'use client';
 
+import { PHARMACY_MANDATE_TYPES, PHARMACY_PROFESSIONS, isPharmacyProfession } from '@/lib/pharmacy';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { QUEBEC_REGIONS, PROFESSIONS, ALL_DEPARTMENTS, SHIFTS, URGENCY_LEVELS, URGENCY_LABELS } from '@/lib/constants';
 import { displayValue, localizedPath, optionLabel, type Locale } from '@/lib/i18n';
 import { useLocale } from './I18nProvider';
 
-export default function EstablishmentRequestForm({ locale: localeProp }: { locale?: Locale }) {
+export default function EstablishmentRequestForm({ locale: localeProp, pharmacy = false }: { locale?: Locale; pharmacy?: boolean }) {
   const contextLocale = useLocale();
   const locale = localeProp || contextLocale;
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
     city: '',
     department: '',
     profession_requested: '',
+    mandate_type: '',
     number_of_resources: '',
     shift: '',
     start_date: '',
@@ -28,6 +31,7 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
     details: '',
     consent_contact: false,
   });
+  const pharmacyRequest = pharmacy || isPharmacyProfession(form.profession_requested);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -59,6 +63,7 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
     try {
       const payload = {
         ...form,
+        mandate_type: pharmacyRequest ? form.mandate_type : null,
         number_of_resources: form.number_of_resources ? Number(form.number_of_resources) : null,
       };
       const res = await fetch('/api/establishment-requests', {
@@ -69,6 +74,12 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
       const json = await res.json();
       if (!res.ok || !json.ok) {
         throw new Error(json.error || (locale === 'en' ? 'Request failed to send.' : "Echec de l'envoi."));
+      }
+      if (pharmacyRequest) {
+        trackAnalyticsEvent('pharmacy_request_submit', {
+          profession: form.profession_requested,
+          mandate_type: form.mandate_type,
+        });
       }
       setSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -100,7 +111,7 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
   return (
     <form onSubmit={submit} className="card p-6 sm:p-8 space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={locale === 'en' ? 'Facility name' : "Nom de l'etablissement"} required>
+        <Field label={pharmacy ? (locale === 'en' ? 'Pharmacy name' : 'Nom de la pharmacie') : (locale === 'en' ? 'Facility name' : "Nom de l’établissement")} required>
           <input className="input" value={form.establishment} onChange={(e) => update('establishment', e.target.value)} required />
         </Field>
         <Field label={locale === 'en' ? 'Contact person' : 'Personne contact'} required>
@@ -125,10 +136,10 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
             ))}
           </select>
         </Field>
-        <Field label={locale === 'en' ? 'City' : 'Ville'}>
-          <input className="input" value={form.city} onChange={(e) => update('city', e.target.value)} />
+        <Field label={locale === 'en' ? 'City' : 'Ville'} required={pharmacyRequest}>
+          <input className="input" required={pharmacyRequest} value={form.city} onChange={(e) => update('city', e.target.value)} />
         </Field>
-        <Field label={locale === 'en' ? 'Department' : 'Departement'}>
+        {!pharmacy && <Field label={locale === 'en' ? 'Department' : 'Département'}>
           <select className="input" value={form.department} onChange={(e) => update('department', e.target.value)}>
             <option value="">{locale === 'en' ? 'Select' : 'Choisir'}</option>
             {ALL_DEPARTMENTS.map((d) => (
@@ -137,8 +148,8 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
               </option>
             ))}
           </select>
-        </Field>
-        <Field label={locale === 'en' ? 'Profession requested' : 'Profession recherchee'} required>
+        </Field>}
+        <Field label={locale === 'en' ? 'Profession requested' : 'Profession recherchée'} required>
           <select
             className="input"
             value={form.profession_requested}
@@ -146,13 +157,27 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
             required
           >
             <option value="">{locale === 'en' ? 'Select a profession' : 'Choisir une profession'}</option>
-            {PROFESSIONS.map((p) => (
+            {(pharmacy ? PHARMACY_PROFESSIONS : PROFESSIONS).map((p) => (
               <option key={p} value={p}>
                 {optionLabel(locale, p)}
               </option>
             ))}
           </select>
         </Field>
+        {pharmacyRequest && (
+          <Field label={locale === 'en' ? 'Service requested' : 'Service souhaité'} required>
+            <select className="input" value={form.mandate_type} onChange={(e) => update('mandate_type', e.target.value)} required>
+              <option value="">{locale === 'en' ? 'Select a service' : 'Choisir un service'}</option>
+              {PHARMACY_MANDATE_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type === 'Permanent'
+                    ? (locale === 'en' ? 'Permanent recruitment' : 'Recrutement permanent')
+                    : (locale === 'en' ? 'Relief coverage' : 'Remplacement temporaire')}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field label={locale === 'en' ? 'Number of resources' : 'Nombre de ressources'}>
           <input
             className="input"
@@ -200,7 +225,9 @@ export default function EstablishmentRequestForm({ locale: localeProp }: { local
           rows={4}
           value={form.details}
           onChange={(e) => update('details', e.target.value)}
-          placeholder={locale === 'en' ? 'Notes, context, requirements...' : 'Particularites, contexte, exigences...'}
+          placeholder={pharmacyRequest
+            ? (locale === 'en' ? 'Hours, days to cover, experience needed…' : 'Heures, jours à couvrir, expérience recherchée…')
+            : (locale === 'en' ? 'Notes, context, requirements...' : 'Particularités, contexte, exigences...')}
         />
       </Field>
 

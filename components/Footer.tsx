@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { COMPANY } from '@/lib/constants';
+import { PHARMACY_PAGES } from '@/lib/pharmacy';
 import { PUBLIC_COPY, ROUTES, localizeHref, type Locale } from '@/lib/i18n';
 import { LOCAL_SEO_FOOTER_LINKS } from '@/lib/local-seo-pages';
 
@@ -9,9 +10,12 @@ export default function Footer({ locale = 'fr' }: { locale?: Locale }) {
     { href: ROUTES.jobs.fr, label: copy.nav.viewJobs },
     { href: ROUTES.apply.fr, label: copy.footer.sendProfile },
     { href: ROUTES.login.fr, label: copy.footer.candidateSpace },
+    { href: PHARMACY_PAGES.pharmacist[locale], label: locale === 'en' ? 'Pharmacist jobs' : 'Emplois de pharmacien' },
+    { href: PHARMACY_PAGES.assistant[locale], label: locale === 'en' ? 'Pharmacy assistant jobs' : 'Emplois d’ATP' },
   ];
   const facilityLinks = [
     { href: ROUTES.facilities.fr, label: copy.nav.staffing },
+    { href: PHARMACY_PAGES.employer[locale], label: locale === 'en' ? 'Staffing for pharmacies' : 'Recrutement pour les pharmacies' },
     { href: ROUTES.contact.fr, label: copy.nav.contact },
   ];
   const infoLinks = [

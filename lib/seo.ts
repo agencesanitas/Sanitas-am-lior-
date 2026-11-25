@@ -1,3 +1,5 @@
+import { deadlineTimestamp } from './job-availability';
+import { isPharmacyProfession } from './pharmacy';
 import type { Metadata } from 'next';
 import { COMPANY } from '@/lib/constants';
 import {
@@ -499,6 +501,8 @@ function countryCode(country?: string | null): string {
 }
 
 export function jobPostingJsonLd(job: Job, locale: Locale) {
+  const pharmacyJob = isPharmacyProfession(job.profession);
+  const employer = pharmacyJob ? job.establishment?.trim() || 'confidential' : COMPANY.name;
   const title = jobTitle(job, locale);
   const country = job.country || 'Canada';
   const applicantCountries =
@@ -528,17 +532,20 @@ export function jobPostingJsonLd(job: Job, locale: Locale) {
       name: COMPANY.name,
       value: job.id,
     },
-    title,
+    title: pharmacyJob ? displayValue(locale, job.profession) : title,
     description,
-    datePosted: job.created_at,
-    directApply: true,
-    employmentType: employmentTypeForMandate(job.mandate_type),
+    datePosted: job.published_at || job.created_at,
+    validThrough: job.application_deadline ? deadlineTimestamp(job.application_deadline) : undefined,
+    directApply: pharmacyJob ? undefined : true,
+    employmentType: pharmacyJob && job.mandate_type === 'Permanent' ? undefined : employmentTypeForMandate(job.mandate_type),
     hiringOrganization: {
       '@type': 'Organization',
-      '@id': `${SITE_URL}/#organization`,
-      name: COMPANY.name,
-      sameAs: SITE_URL,
-      logo: absoluteUrl(BRAND_LOGO_PATH),
+      name: employer,
+      ...(employer === COMPANY.name && {
+        '@id': `${SITE_URL}/#organization`,
+        sameAs: SITE_URL,
+        logo: absoluteUrl(BRAND_LOGO_PATH),
+      }),
     },
     industry: 'Healthcare staffing',
     occupationalCategory: displayValue(locale, job.profession),
@@ -547,13 +554,15 @@ export function jobPostingJsonLd(job: Job, locale: Locale) {
     jobBenefits: benefits || undefined,
     responsibilities: particularities || undefined,
     workHours: jobSchedule(job, locale) || job.shift || undefined,
-    baseSalary: baseSalaryFromText(jobSalary(job, locale)),
+    baseSalary: pharmacyJob && /primes?|bonus|per diem|indemnit/i.test(jobSalary(job, locale) || '')
+      ? undefined
+      : baseSalaryFromText(jobSalary(job, locale)),
     jobLocation: {
       '@type': 'Place',
       address: {
         '@type': 'PostalAddress',
         addressLocality: job.city || undefined,
-        addressRegion: job.region || COMPANY.address.province,
+        addressRegion: pharmacyJob ? COMPANY.address.province : job.region || COMPANY.address.province,
         addressCountry: countryCode(country),
       },
     },

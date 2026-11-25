@@ -45,6 +45,7 @@ export interface FormState {
   years_experience: string;
   permit_status: string;
   permit_number: string;
+  pharmacy_training: string;
   languages: string[];
   work_authorization: string;
   mobility: string;
@@ -194,6 +195,7 @@ export function makeInitialFormState(
     years_experience: initial.years_experience || '',
     permit_status: initial.permit_status || '',
     permit_number: initial.permit_number || '',
+    pharmacy_training: '',
     languages: initial.languages || [],
     work_authorization: workAuthorization,
     mobility: initial.mobility || '',

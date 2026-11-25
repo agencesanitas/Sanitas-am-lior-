@@ -61,6 +61,7 @@ export default async function DemandesPage() {
                 <Info label="Téléphone" value={r.phone} />
                 <Info label="Courriel" value={r.email} />
                 <Info label="Profession" value={r.profession_requested} />
+                {r.mandate_type && <Info label="Service" value={r.mandate_type} />}
                 <Info label="Nb ressources" value={r.number_of_resources?.toString()} />
                 <Info label="Quart" value={r.shift} />
                 <Info label="Début" value={r.start_date} />

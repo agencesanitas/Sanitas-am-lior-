@@ -16,6 +16,7 @@
 'use client';
 
 import CandidateWizard from './candidate/CandidateWizard';
+import { type PharmacyProfession } from '@/lib/pharmacy';
 import type { Locale } from '@/lib/i18n';
 import type { Candidate, DocumentRecord, Job } from '@/types';
 
@@ -24,6 +25,7 @@ type Mode = 'posting' | 'spontaneous';
 interface CandidateApplicationFlowProps {
   mode: Mode;
   job?: Job | null;
+  campaignProfession?: PharmacyProfession;
   initial: Candidate;
   initialDocuments?: Record<
     string,

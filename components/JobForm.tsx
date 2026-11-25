@@ -46,6 +46,7 @@ interface State {
   duration_en: string;
   salary: string;
   salary_en: string;
+  application_deadline: string;
   urgency: 'normal' | 'high' | 'urgent';
   requirements: string;
   requirements_en: string;
@@ -94,6 +95,7 @@ export default function JobForm({ initial, mode }: JobFormProps) {
     duration_en: initial?.duration_en || '',
     salary: initial?.salary || '',
     salary_en: initial?.salary_en || '',
+    application_deadline: initial?.application_deadline || '',
     urgency: (initial?.urgency as State['urgency']) ?? 'normal',
     requirements: initial?.requirements || '',
     requirements_en: initial?.requirements_en || '',
@@ -197,6 +199,7 @@ export default function JobForm({ initial, mode }: JobFormProps) {
         duration_en: form.duration_en || null,
         salary: form.salary || null,
         salary_en: form.salary_en || null,
+        application_deadline: form.application_deadline || null,
         urgency: form.urgency,
         requirements: form.requirements || null,
         requirements_en: form.requirements_en || null,
@@ -317,6 +320,9 @@ export default function JobForm({ initial, mode }: JobFormProps) {
             ) : (
               <select className="input" value={form.region} onChange={(e) => set('region', e.target.value)}>
                 <option value="">Choisir</option>
+                {form.region && !QUEBEC_REGIONS.includes(form.region) && (
+                  <option value={form.region}>{form.region}</option>
+                )}
                 {QUEBEC_REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             )}
@@ -382,6 +388,11 @@ export default function JobForm({ initial, mode }: JobFormProps) {
             </select>
           </Field>
         </div>
+          <div>
+            <label htmlFor="application-deadline" className="label">Date limite de candidature</label>
+            <input id="application-deadline" type="date" className="input" value={form.application_deadline} onChange={(e) => set('application_deadline', e.target.value)} />
+            <p className="mt-1 text-sm text-fg-muted">Requise pour les postes en pharmacie. L’offre ferme à la fin de cette journée, heure du Québec.</p>
+          </div>
 
         {isInternational && (
           <Field

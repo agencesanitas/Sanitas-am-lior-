@@ -1,3 +1,4 @@
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -36,7 +37,7 @@ export const dynamic = 'force-dynamic';
 async function fetchJob(id: string): Promise<Job | null> {
   try {
     const supabase = createSupabaseAdminClient();
-    const { data } = await supabase.from('jobs').select('*').eq('id', id).eq('status', 'active').maybeSingle();
+    const { data } = await supabase.from('jobs').select('*').eq('id', id).eq('status', 'active').or(jobDeadlineFilter()).maybeSingle();
     return (data as Job) || null;
   } catch {
     return null;
@@ -126,6 +127,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
                   <Detail label={isInternational ? 'Region / territory' : 'Region'} value={job.region} />
                   <Detail label="Shift" value={displayValue('en', job.shift)} />
                   <Detail label="Compensation" value={salary} />
+                  {job.application_deadline && <Detail label="Application deadline" value={formatDate(`${job.application_deadline}T12:00:00Z`, dateLocale('en'))} />}
                   <Detail label="Start date" value={formatDate(job.start_date, dateLocale('en'))} />
                 </dl>
 

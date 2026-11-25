@@ -1,3 +1,4 @@
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -35,7 +36,7 @@ async function fetchJob(id: string): Promise<Job | null> {
       .from('jobs')
       .select('*')
       .eq('id', id)
-      .eq('status', 'active')
+      .eq('status', 'active').or(jobDeadlineFilter())
       .maybeSingle();
     return (data as Job) || null;
   } catch {
@@ -123,6 +124,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
                   <Detail label={isInternational ? 'Région / territoire' : 'Région'} value={job.region} />
                   <Detail label="Quart" value={job.shift} />
                   <Detail label="Rémunération" value={salary} />
+                  {job.application_deadline && <Detail label="Date limite de candidature" value={formatDate(`${job.application_deadline}T12:00:00Z`)} />}
                   <Detail label="Date de début" value={formatDate(job.start_date)} />
                 </dl>
 

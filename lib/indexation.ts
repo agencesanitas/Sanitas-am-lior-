@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { PHARMACY_PAGES } from './pharmacy';
 
 type SitemapItem = MetadataRoute.Sitemap[number];
 
@@ -14,6 +15,9 @@ export const STATIC_SEO_LAST_MODIFIED = new Date('2026-06-10T00:00:00.000Z');
 export const INDEXABLE_STATIC_ROUTES: IndexableRoute[] = [
   { fr: '/', en: '/en', priority: 1, changeFrequency: 'weekly' },
   { fr: '/postes', en: '/en/jobs', priority: 0.95, changeFrequency: 'daily' },
+  { ...PHARMACY_PAGES.pharmacist, priority: 0.9, changeFrequency: 'daily' },
+  { ...PHARMACY_PAGES.assistant, priority: 0.9, changeFrequency: 'daily' },
+  { ...PHARMACY_PAGES.employer, priority: 0.8, changeFrequency: 'monthly' },
   { fr: '/etablissements', en: '/en/facilities', priority: 0.8, changeFrequency: 'monthly' },
   { fr: '/a-propos', en: '/en/about', priority: 0.6, changeFrequency: 'monthly' },
   { fr: '/contact', en: '/en/contact', priority: 0.7, changeFrequency: 'monthly' },

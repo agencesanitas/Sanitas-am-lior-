@@ -22,6 +22,7 @@ export interface DraftKeyParams {
   candidateId: string;
   mode: DraftMode;
   jobId?: string | null;
+  campaignProfession?: string;
 }
 
 export interface CandidateDraft<T> {
@@ -30,8 +31,8 @@ export interface CandidateDraft<T> {
   version: number;
 }
 
-export function draftKey({ candidateId, mode, jobId }: DraftKeyParams): string {
-  const suffix = mode === 'posting' ? (jobId || 'unknown') : 'spontaneous';
+export function draftKey({ candidateId, mode, jobId, campaignProfession }: DraftKeyParams): string {
+  const suffix = mode === 'posting' ? (jobId || 'unknown') : campaignProfession || 'spontaneous';
   return `${PREFIX}${candidateId}:${mode}:${suffix}`;
 }
 

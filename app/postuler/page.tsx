@@ -1,3 +1,5 @@
+import { isOpenJob } from '@/lib/job-availability';
+import { isPharmacyProfession, prefillPharmacyCandidate } from '@/lib/pharmacy';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 interface Props {
-  searchParams: { mandat_id?: string };
+  searchParams: { mandat_id?: string; profession?: string };
 }
 
 type ReusableDocument = Pick<
@@ -87,7 +89,9 @@ async function fetchReusableDocuments(candidateId: string): Promise<Record<strin
 function buildRedirect(searchParams: Props['searchParams']) {
   const target = searchParams.mandat_id
     ? `/postuler?mandat_id=${encodeURIComponent(searchParams.mandat_id)}`
-    : '/postuler';
+    : isPharmacyProfession(searchParams.profession)
+      ? `/postuler?profession=${encodeURIComponent(searchParams.profession)}`
+      : '/postuler';
   return `/connexion?redirect=${encodeURIComponent(target)}`;
 }
 
@@ -113,11 +117,14 @@ export default async function PostulerPage({ searchParams }: Props) {
   }
 
   const selectedJob = await fetchJob(searchParams.mandat_id);
-  if (searchParams.mandat_id && (!selectedJob || selectedJob.status !== 'active')) {
+  if (searchParams.mandat_id && (!selectedJob || !isOpenJob(selectedJob))) {
     return <InactiveMandate candidate={candidate} />;
   }
 
   const mode: 'posting' | 'spontaneous' = selectedJob ? 'posting' : 'spontaneous';
+  const pharmacyProfession = !selectedJob && isPharmacyProfession(searchParams.profession)
+    ? searchParams.profession
+    : undefined;
   const [documents, existingPosting] = await Promise.all([
     fetchReusableDocuments(candidate.id),
     selectedJob ? fetchExistingPosting(candidate.id, selectedJob.id) : Promise.resolve(null),
@@ -132,7 +139,8 @@ export default async function PostulerPage({ searchParams }: Props) {
       <CandidateApplicationFlow
         mode={mode}
         job={selectedJob}
-        initial={candidate}
+        initial={pharmacyProfession ? prefillPharmacyCandidate(candidate, pharmacyProfession) : candidate}
+        campaignProfession={pharmacyProfession}
         initialDocuments={documents}
       />
     </PublicLayout>

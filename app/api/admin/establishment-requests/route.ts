@@ -105,7 +105,7 @@ export async function POST(req: Request) {
       establishment: er.establishment || null,
       department: er.department || null,
       shift: er.shift || null,
-      mandate_type: er.duration ? `Mandat (${er.duration})` : null,
+      mandate_type: er.mandate_type || (er.duration ? `Mandat (${er.duration})` : null),
       start_date: er.start_date || null,
       duration: er.duration || null,
       urgency: er.urgency === 'urgent' ? 'urgent' : er.urgency === 'high' ? 'high' : 'normal',

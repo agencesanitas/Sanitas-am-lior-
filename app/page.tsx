@@ -1,3 +1,5 @@
+import { PharmacyLinks } from '@/components/PharmacyLinks';
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
@@ -119,7 +121,7 @@ async function fetchUrgentJobs(): Promise<Job[]> {
     const { data } = await supabase
       .from('jobs')
       .select('*')
-      .eq('status', 'active')
+      .eq('status', 'active').or(jobDeadlineFilter())
       .in('urgency', ['urgent', 'high'])
       .order('created_at', { ascending: false })
       .limit(6);
@@ -245,6 +247,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+        <div className="container-page">
+          <PharmacyLinks locale="fr" />
+        </div>
 
       {/* Bandeau de réassurance : stats structurées + permis CNESST */}
       <section className="border-b border-border bg-surface">

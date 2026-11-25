@@ -1,4 +1,5 @@
 import type { Application, Job } from '@/types';
+import { PHARMACY_PAGES } from './pharmacy';
 import { LOCAL_SEO_PAGES } from '@/lib/local-seo-pages';
 
 export type Locale = 'fr' | 'en';
@@ -15,6 +16,7 @@ export function dateLocale(locale: Locale): string {
 }
 
 export const ROUTES = {
+  ...PHARMACY_PAGES,
   home: { fr: '/', en: '/en' },
   jobs: { fr: '/postes', en: '/en/jobs' },
   apply: { fr: '/postuler', en: '/en/apply' },
@@ -338,6 +340,7 @@ export const OPTION_LABELS: Record<string, Partial<Record<Locale, string>>> = {
   Psychologue: { en: 'Psychologist' },
   'Technologue en radiologie': { en: 'Medical radiation technologist' },
   'Pharmacien(ne)': { en: 'Pharmacist' },
+  'Assistant(e) technique en pharmacie (ATP)': { en: 'Pharmacy assistant (ATP)' },
   Nutritionniste: { en: 'Nutritionist' },
   Medecin: { en: 'Physician' },
   'Médecin': { en: 'Physician' },

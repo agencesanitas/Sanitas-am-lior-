@@ -1,3 +1,4 @@
+import { jobDeadlineFilter } from '@/lib/job-availability';
 import { COMPANY, PROFESSIONS, QUEBEC_REGIONS } from '@/lib/constants';
 import { INDEXABLE_STATIC_ROUTES } from '@/lib/indexation';
 import { getLocalSeoRoutes } from '@/lib/local-seo-pages';
@@ -6,7 +7,7 @@ import { SITE_URL, absoluteUrl } from '@/lib/seo';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import type { Job } from '@/types';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 const CORE_PUBLIC_ROUTES = [
   {
@@ -168,7 +169,7 @@ async function fetchActiveJobs(): Promise<Job[]> {
     const { data } = await supabase
       .from('jobs')
       .select('*')
-      .eq('status', 'active')
+      .eq('status', 'active').or(jobDeadlineFilter())
       .order('updated_at', { ascending: false })
       .limit(30);
 
