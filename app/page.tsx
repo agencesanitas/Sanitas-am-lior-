@@ -1,5 +1,5 @@
 import { PharmacyLinks } from '@/components/PharmacyLinks';
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
@@ -118,10 +118,10 @@ async function fetchUrgentJobs(): Promise<Job[]> {
   noStore();
   try {
     const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
+    const { data } = await withJobDeadline(supabase
       .from('jobs')
       .select('*')
-      .eq('status', 'active').or(jobDeadlineFilter())
+      .eq('status', 'active'))
       .in('urgency', ['urgent', 'high'])
       .order('created_at', { ascending: false })
       .limit(6);

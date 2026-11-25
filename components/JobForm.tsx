@@ -391,7 +391,7 @@ export default function JobForm({ initial, mode }: JobFormProps) {
           <div>
             <label htmlFor="application-deadline" className="label">Date limite de candidature</label>
             <input id="application-deadline" type="date" className="input" value={form.application_deadline} onChange={(e) => set('application_deadline', e.target.value)} />
-            <p className="mt-1 text-sm text-fg-muted">Requise pour les postes en pharmacie. L’offre ferme à la fin de cette journée, heure du Québec.</p>
+            <p className="mt-1 text-sm text-fg-muted">Requise pour les postes en pharmacie après activation de la migration. L’offre ferme à la fin de cette journée, heure du Québec.</p>
           </div>
 
         {isInternational && (

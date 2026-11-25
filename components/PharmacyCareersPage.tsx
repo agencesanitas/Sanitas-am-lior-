@@ -4,7 +4,7 @@ import JobCard from './JobCard';
 import { PharmacyLinks } from './PharmacyLinks';
 import { COMPANY } from '@/lib/constants';
 import { localizedPath, type Locale } from '@/lib/i18n';
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import { PHARMACIST, PHARMACY_ASSISTANT, PHARMACY_PAGES, PHARMACY_PAY_MAX } from '@/lib/pharmacy';
 import { publicPageMetadata } from '@/lib/seo';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
@@ -55,10 +55,10 @@ export async function PharmacyCareersPage({ career, locale }: { career: Career; 
   const en = locale === 'en';
   const applyHref = localizedPath(locale, 'apply', `?profession=${encodeURIComponent(info.profession)}`);
   const supabase = createSupabaseAdminClient();
-  const { data } = await supabase.from('jobs').select('*')
-    .eq('status', 'active').or(jobDeadlineFilter())
+  const { data } = await withJobDeadline(supabase.from('jobs').select('*')
+    .eq('status', 'active'))
     .eq('profession', info.profession).eq('country', 'Canada')
-    .order('published_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
+    .order('created_at', { ascending: false });
   const jobs = (data || []) as Job[];
 
   return (

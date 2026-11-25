@@ -1,4 +1,4 @@
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -37,7 +37,7 @@ export const dynamic = 'force-dynamic';
 async function fetchJob(id: string): Promise<Job | null> {
   try {
     const supabase = createSupabaseAdminClient();
-    const { data } = await supabase.from('jobs').select('*').eq('id', id).eq('status', 'active').or(jobDeadlineFilter()).maybeSingle();
+    const { data } = await withJobDeadline(supabase.from('jobs').select('*').eq('id', id).eq('status', 'active')).maybeSingle();
     return (data as Job) || null;
   } catch {
     return null;

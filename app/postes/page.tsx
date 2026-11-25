@@ -1,5 +1,5 @@
 import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
@@ -45,7 +45,7 @@ async function fetchJobs(sp: Props['searchParams']): Promise<Job[]> {
   noStore();
   try {
     const supabase = createSupabaseAdminClient();
-    let q = supabase.from('jobs').select('*').eq('status', 'active').or(jobDeadlineFilter());
+    let q = withJobDeadline(supabase.from('jobs').select('*').eq('status', 'active'));
 
     const profession = param(sp, 'profession');
     const country = param(sp, 'country');

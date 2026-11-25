@@ -1,4 +1,4 @@
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
@@ -26,7 +26,7 @@ async function fetchDashboard(candidateId: string) {
   const [{ data: applications }, { data: documents }, { data: jobs }] = await Promise.all([
     supabase.from('applications').select('*').eq('candidate_id', candidateId).order('created_at', { ascending: false }).limit(5),
     supabase.from('candidate_documents').select('*').eq('candidate_id', candidateId).eq('is_current', true),
-    supabase.from('jobs').select('*').eq('status', 'active').or(jobDeadlineFilter()).order('created_at', { ascending: false }).limit(4),
+    withJobDeadline(supabase.from('jobs').select('*').eq('status', 'active')).order('created_at', { ascending: false }).limit(4),
   ]);
   return {
     applications: (applications || []) as Application[],

@@ -3,6 +3,7 @@ import { establishmentRequestSchema } from '@/lib/validation';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { sendEmail, renderEmailHtml } from '@/lib/email';
 import { COMPANY } from '@/lib/constants';
+import { pharmacySchemaReady } from '@/lib/job-availability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,6 +29,10 @@ export async function POST(req: Request) {
   }
 
   const input = parsed.data;
+  const hasPharmacySchema = pharmacySchemaReady();
+  const details = input.mandate_type && !hasPharmacySchema
+    ? [`Service souhaité : ${input.mandate_type}`, input.details].filter(Boolean).join('\n\n')
+    : input.details || null;
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -42,13 +47,13 @@ export async function POST(req: Request) {
       city: input.city || null,
       department: input.department || null,
       profession_requested: input.profession_requested,
-      mandate_type: input.mandate_type || null,
+      ...(hasPharmacySchema && { mandate_type: input.mandate_type || null }),
       number_of_resources: input.number_of_resources || null,
       shift: input.shift || null,
       start_date: input.start_date || null,
       duration: input.duration || null,
       urgency: input.urgency || 'normal',
-      details: input.details || null,
+      details,
       consent_contact: !!input.consent_contact,
       status: 'Nouvelle',
     })

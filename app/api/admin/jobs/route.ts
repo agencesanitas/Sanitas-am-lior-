@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { jobSchema } from '@/lib/validation';
+import { pharmacySchemaReady } from '@/lib/job-availability';
+import { isPharmacyProfession } from '@/lib/pharmacy';
 import { requireAdmin } from '@/lib/auth';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
@@ -44,6 +46,9 @@ export async function POST(req: Request) {
   }
 
   const input = parsed.data;
+  if (input.status === 'active' && isPharmacyProfession(input.profession) && !pharmacySchemaReady()) {
+    return NextResponse.json({ ok: false, error: 'La migration des offres en pharmacie doit être appliquée avant de publier une fiche de mandat.' }, { status: 503 });
+  }
   const supabase = createSupabaseAdminClient();
 
   const { data, error } = await supabase
@@ -71,7 +76,7 @@ export async function POST(req: Request) {
       duration_en: input.duration_en || null,
       salary: input.salary || null,
       salary_en: input.salary_en || null,
-      application_deadline: input.application_deadline || null,
+      ...(pharmacySchemaReady() && { application_deadline: input.application_deadline || null }),
       urgency: input.urgency,
       requirements: input.requirements || null,
       requirements_en: input.requirements_en || null,
@@ -121,6 +126,9 @@ export async function PUT(req: Request) {
   }
 
   const input = parsed.data;
+  if (input.status === 'active' && isPharmacyProfession(input.profession) && !pharmacySchemaReady()) {
+    return NextResponse.json({ ok: false, error: 'La migration des offres en pharmacie doit être appliquée avant de publier une fiche de mandat.' }, { status: 503 });
+  }
   const supabase = createSupabaseAdminClient();
 
   const { error } = await supabase
@@ -148,7 +156,7 @@ export async function PUT(req: Request) {
       duration_en: input.duration_en || null,
       salary: input.salary || null,
       salary_en: input.salary_en || null,
-      application_deadline: input.application_deadline || null,
+      ...(pharmacySchemaReady() && { application_deadline: input.application_deadline || null }),
       urgency: input.urgency,
       requirements: input.requirements || null,
       requirements_en: input.requirements_en || null,

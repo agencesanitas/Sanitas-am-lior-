@@ -1,4 +1,4 @@
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import type { MetadataRoute } from 'next';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { getLocalSeoRoutes } from '@/lib/local-seo-pages';
@@ -33,10 +33,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
+    const { data } = await withJobDeadline(supabase
       .from('jobs')
       .select('id, updated_at, created_at, status')
-      .eq('status', 'active').or(jobDeadlineFilter())
+      .eq('status', 'active'))
       .order('updated_at', { ascending: false })
       .limit(1000);
 

@@ -1,4 +1,4 @@
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import { COMPANY, PROFESSIONS, QUEBEC_REGIONS } from '@/lib/constants';
 import { INDEXABLE_STATIC_ROUTES } from '@/lib/indexation';
 import { getLocalSeoRoutes } from '@/lib/local-seo-pages';
@@ -166,10 +166,10 @@ export async function GET() {
 async function fetchActiveJobs(): Promise<Job[]> {
   try {
     const supabase = createSupabaseAdminClient();
-    const { data } = await supabase
+    const { data } = await withJobDeadline(supabase
       .from('jobs')
       .select('*')
-      .eq('status', 'active').or(jobDeadlineFilter())
+      .eq('status', 'active'))
       .order('updated_at', { ascending: false })
       .limit(30);
 

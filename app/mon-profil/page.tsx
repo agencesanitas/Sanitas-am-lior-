@@ -1,4 +1,4 @@
-import { jobDeadlineFilter } from '@/lib/job-availability';
+import { withJobDeadline } from '@/lib/job-availability';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
@@ -34,10 +34,10 @@ async function fetchDashboard(candidateId: string) {
       .select('*')
       .eq('candidate_id', candidateId)
       .eq('is_current', true),
-    supabase
+    withJobDeadline(supabase
       .from('jobs')
       .select('*')
-      .eq('status', 'active').or(jobDeadlineFilter())
+      .eq('status', 'active'))
       .order('created_at', { ascending: false })
       .limit(4),
   ]);
