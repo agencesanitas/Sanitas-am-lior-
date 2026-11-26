@@ -12,7 +12,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   breadcrumbJsonLd,
   jobMetaDescription,
-  jobPostingJsonLd,
+  jobDetailJsonLd,
   publicPageMetadata,
 } from '@/lib/seo';
 import {
@@ -21,6 +21,7 @@ import {
   jobDescription,
   jobDuration,
   jobEstablishment,
+  localizedJobApplicationPath,
   jobSalary,
   jobSchedule,
 } from '@/lib/i18n';
@@ -61,7 +62,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
   const job = await fetchJob(params.id);
   if (!job) notFound();
 
-  const interestedHref = `/postuler?mandat_id=${job.id}`;
+  const interestedHref = localizedJobApplicationPath('fr', job);
   const country = job.country || 'Canada';
   const isInternational = country !== 'Canada';
   const eligibleCountries = job.eligible_countries || [];
@@ -79,7 +80,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
         data={{
           '@context': 'https://schema.org',
           '@graph': [
-            jobPostingJsonLd(job, 'fr'),
+            jobDetailJsonLd(job, 'fr'),
             breadcrumbJsonLd([
               { name: 'Accueil', url: '/' },
               { name: 'Postes', url: '/postes' },

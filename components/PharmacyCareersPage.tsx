@@ -90,7 +90,7 @@ export async function PharmacyCareersPage({ career, locale }: { career: Career; 
       </section>
       <section className="section">
         <div className="container-page">
-          <h2 className="text-display-md text-fg">{en ? 'Open positions' : 'Offres par pharmacie'}</h2>
+          <h2 className="text-display-md text-fg">{en ? 'Open positions' : 'Postes disponibles'}</h2>
           {jobs.length === 0 ? (
             <p className="mt-3 max-w-prose leading-relaxed text-fg-muted">
               {en

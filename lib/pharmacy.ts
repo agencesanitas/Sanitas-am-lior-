@@ -1,4 +1,4 @@
-import type { Candidate } from '@/types';
+import type { Candidate, Job } from '@/types';
 
 export const PHARMACIST = 'Pharmacien(ne)';
 export const PHARMACY_ASSISTANT = 'Assistant(e) technique en pharmacie (ATP)';
@@ -10,6 +10,15 @@ export type PharmacyProfession = (typeof PHARMACY_PROFESSIONS)[number];
 
 export function isPharmacyProfession(value: unknown): value is PharmacyProfession {
   return value === PHARMACIST || value === PHARMACY_ASSISTANT;
+}
+
+const PHARMACY_CAMPAIGN_IDS = {
+  [PHARMACIST]: 'e4c3d41d-b983-4209-86c5-e6d063377d96',
+  [PHARMACY_ASSISTANT]: '3e42b083-d341-4f11-9404-b62293e8de0f',
+} as const;
+
+export function isPharmacyCampaignJob(job: Pick<Job, 'id' | 'profession'>) {
+  return isPharmacyProfession(job.profession) && PHARMACY_CAMPAIGN_IDS[job.profession] === job.id;
 }
 
 export const PHARMACY_PAY_MAX = { pharmacist: 150, assistant: 50 } as const;

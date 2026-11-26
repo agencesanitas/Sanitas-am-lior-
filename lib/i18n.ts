@@ -1,5 +1,5 @@
 import type { Application, Job } from '@/types';
-import { PHARMACY_PAGES } from './pharmacy';
+import { isPharmacyCampaignJob, PHARMACY_PAGES } from './pharmacy';
 import { LOCAL_SEO_PAGES } from '@/lib/local-seo-pages';
 
 export type Locale = 'fr' | 'en';
@@ -85,6 +85,13 @@ function mapDynamicPath(path: string, targetLocale: Locale): string | null {
 
 export function localizedPath(locale: Locale, key: RouteKey, suffix = ''): string {
   return `${ROUTES[key][locale]}${suffix}`;
+}
+
+export function localizedJobApplicationPath(locale: Locale, job: Pick<Job, 'id' | 'profession'>): string {
+  const filter = isPharmacyCampaignJob(job)
+    ? `profession=${encodeURIComponent(job.profession)}`
+    : `mandat_id=${job.id}`;
+  return localizedPath(locale, 'apply', `?${filter}`);
 }
 
 export function localizedJobPath(locale: Locale, jobId: string): string {
@@ -317,6 +324,7 @@ export const PUBLIC_COPY = {
 export const OPTION_LABELS: Record<string, Partial<Record<Locale, string>>> = {
   // Professions
   'Infirmier(ere)': { en: 'Registered nurse' },
+  'Plusieurs régions du Québec': { en: 'Multiple regions of Quebec' },
   'Infirmier(ère)': { en: 'Registered nurse' },
   'Infirmier(ere) clinicien(ne)': { en: 'Clinical nurse' },
   'Infirmier(ère) clinicien(ne)': { en: 'Clinical nurse' },

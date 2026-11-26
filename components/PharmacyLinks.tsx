@@ -25,18 +25,17 @@ function pharmacyRoles(locale: Locale) {
   return [
     {
       profession: PHARMACIST,
-      href: PHARMACY_PAGES.pharmacist[locale],
       title: en ? 'Pharmacist' : 'Pharmacien(ne)',
       rate: PHARMACY_PAY_MAX.pharmacist,
     },
     {
       profession: PHARMACY_ASSISTANT,
-      href: PHARMACY_PAGES.assistant[locale],
       title: en ? 'Pharmacy assistant (ATP)' : 'Assistant(e) technique en pharmacie (ATP)',
       rate: PHARMACY_PAY_MAX.assistant,
     },
   ].map((role) => ({
     ...role,
+    href: localizedPath(locale, 'jobs', `?${new URLSearchParams({ profession: role.profession })}`),
     applyHref: localizedPath(locale, 'apply', `?profession=${encodeURIComponent(role.profession)}`),
     applyLabel: en ? `Apply for the ${role.title} role` : `Postuler comme ${role.title}`,
     rateLabel: en ? `$${role.rate}/h` : `${role.rate} $/h`,
@@ -88,33 +87,5 @@ export function PharmacySpotlight({ locale }: { locale: Locale }) {
         </div>
       </div>
     </div>
-  );
-}
-
-export function PharmacyRecruitmentListings({ locale, profession }: { locale: Locale; profession?: string }) {
-  const en = locale === 'en';
-  const roles = pharmacyRoles(locale).filter((role) => !profession || role.profession === profession);
-  if (!roles.length) return null;
-
-  return (
-    <section aria-labelledby="pharmacy-recruitment">
-      <h2 id="pharmacy-recruitment" className="font-serif text-3xl tracking-tight text-fg">
-        {en ? 'Recruiting for pharmacies' : 'Recrutement en pharmacie'}
-      </h2>
-      <p className="mt-2 text-sm text-fg-muted">{en ? 'Multiple regions in Quebec. Rates vary by assignment.' : 'Plusieurs régions du Québec. Taux selon le mandat.'}</p>
-      <ul className="mt-4 divide-y divide-border border-y border-border">
-        {roles.map(({ href, title, rateLabel, applyHref, applyLabel }) => (
-          <li key={href} className="flex flex-wrap items-center gap-x-5 gap-y-2 py-3">
-            <h3 className="min-w-0 basis-full text-lg font-semibold text-fg sm:basis-auto sm:flex-1">
-              <Link href={href} className="underline decoration-accent/40 underline-offset-4 hover:text-accent">{title}</Link>
-            </h3>
-            <p className="whitespace-nowrap text-sm text-fg-muted">{en ? 'Up to' : 'Jusqu’à'} <strong className="text-lg text-accent">{rateLabel}</strong></p>
-            <Link href={applyHref} aria-label={applyLabel} className="btn-primary btn-sm ml-auto sm:ml-0">
-              {en ? 'Apply' : 'Postuler'}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }

@@ -1,5 +1,5 @@
 import { deadlineTimestamp } from './job-availability';
-import { isPharmacyProfession } from './pharmacy';
+import { isPharmacyCampaignJob, isPharmacyProfession } from './pharmacy';
 import type { Metadata } from 'next';
 import { COMPANY } from '@/lib/constants';
 import {
@@ -500,14 +500,18 @@ function countryCode(country?: string | null): string {
   return 'CA';
 }
 
-export function jobPostingJsonLd(job: Job, locale: Locale) {
+export function jobDetailJsonLd(job: Job, locale: Locale) {
+  const title = jobTitle(job, locale);
+  const jobUrl = absoluteUrl(locale === 'en' ? `/en/jobs/${job.id}` : `/postes/${job.id}`);
+
+  if (isPharmacyCampaignJob(job)) {
+    return webPageJsonLd({ name: title, description: jobMetaDescription(job, locale), url: jobUrl, locale });
+  }
   const pharmacyJob = isPharmacyProfession(job.profession);
   const employer = pharmacyJob ? job.establishment?.trim() || 'confidential' : COMPANY.name;
-  const title = jobTitle(job, locale);
   const country = job.country || 'Canada';
   const applicantCountries =
     job.eligible_countries && job.eligible_countries.length > 0 ? job.eligible_countries : ['Canada'];
-  const jobUrl = absoluteUrl(locale === 'en' ? `/en/jobs/${job.id}` : `/postes/${job.id}`);
   const requirements = jobRequirements(job, locale);
   const benefits = jobBenefits(job, locale);
   const particularities = jobParticularities(job, locale);

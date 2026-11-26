@@ -22,12 +22,13 @@ import {
   jobSalary,
   jobSchedule,
   jobTitle,
+  localizedJobApplicationPath,
   localizedPath,
 } from '@/lib/i18n';
 import {
   breadcrumbJsonLd,
   jobMetaDescription,
-  jobPostingJsonLd,
+  jobDetailJsonLd,
   publicPageMetadata,
 } from '@/lib/seo';
 import type { Job } from '@/types';
@@ -62,7 +63,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
   const job = await fetchJob(params.id);
   if (!job) notFound();
 
-  const interestedHref = `${localizedPath('en', 'apply')}?mandat_id=${job.id}`;
+  const interestedHref = localizedJobApplicationPath('en', job);
   const description = jobDescription(job, 'en');
   const benefits = jobBenefits(job, 'en');
   const requirements = jobRequirements(job, 'en');
@@ -82,7 +83,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
         data={{
           '@context': 'https://schema.org',
           '@graph': [
-            jobPostingJsonLd(job, 'en'),
+            jobDetailJsonLd(job, 'en'),
             breadcrumbJsonLd([
               { name: 'Home', url: '/en' },
               { name: 'Jobs', url: '/en/jobs' },
@@ -115,7 +116,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
               <div className="mt-5 flex items-start gap-2 text-[15.5px] text-fg-muted">
                 <MapPinIcon className="mt-1 h-4 w-4 shrink-0 text-fg-subtle" />
                 <span>
-                  {[establishment, job.city, job.region, isInternational ? displayValue('en', country) : null].filter(Boolean).join(' · ')}
+                  {[establishment, job.city, displayValue('en', job.region), isInternational ? displayValue('en', country) : null].filter(Boolean).join(' · ')}
                 </span>
               </div>
 
@@ -124,7 +125,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
                 <dl className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                   <Detail label="Profession" value={displayValue('en', job.profession)} />
                   <Detail label="Department" value={displayValue('en', job.department)} />
-                  <Detail label={isInternational ? 'Region / territory' : 'Region'} value={job.region} />
+                  <Detail label={isInternational ? 'Region / territory' : 'Region'} value={displayValue('en', job.region)} />
                   <Detail label="Shift" value={displayValue('en', job.shift)} />
                   <Detail label="Compensation" value={salary} />
                   {job.application_deadline && <Detail label="Application deadline" value={formatDate(`${job.application_deadline}T12:00:00Z`, dateLocale('en'))} />}
@@ -168,7 +169,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
                 <Detail label="Start date" value={formatDate(job.start_date, dateLocale('en'))} />
                 <Detail label="Duration" value={duration} />
                 <Detail label="Compensation" value={salary} />
-                <Detail label={isInternational ? 'Region / territory' : 'Region'} value={job.region} />
+                <Detail label={isInternational ? 'Region / territory' : 'Region'} value={displayValue('en', job.region)} />
               </dl>
 
               {isInternational && eligibleCountries.length > 0 && (
@@ -266,7 +267,7 @@ export default async function EnglishJobDetailPage({ params }: { params: { id: s
                   <SidebarItem label="Facility" value={establishment} />
                   {isInternational && <SidebarItem label="Country" value={displayValue('en', country)} />}
                   <SidebarItem label="City" value={job.city} />
-                  <SidebarItem label={isInternational ? 'Territory' : 'Region'} value={job.region} />
+                  <SidebarItem label={isInternational ? 'Territory' : 'Region'} value={displayValue('en', job.region)} />
                   <SidebarItem label="Department" value={displayValue('en', job.department)} />
                   <SidebarItem label="Shift" value={displayValue('en', job.shift)} />
                   <SidebarItem label="Assignment type" value={displayValue('en', job.mandate_type)} />

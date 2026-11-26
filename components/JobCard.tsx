@@ -13,7 +13,7 @@ import {
   jobSalary,
   jobTitle,
   localizedJobPath,
-  localizedPath,
+  localizedJobApplicationPath,
   type Locale,
 } from '@/lib/i18n';
 
@@ -41,7 +41,7 @@ export default function JobCard({ job, variant = 'default', locale = 'fr' }: Job
   if (job.mandate_type) facts.push({ label: copy.type, value: displayValue(locale, job.mandate_type) });
   if (job.start_date) facts.push({ label: copy.start, value: formatDate(job.start_date, dateLocale(locale)) });
   if (job.region) {
-    facts.push({ label: isInternational ? copy.territory : copy.region, value: job.region });
+    facts.push({ label: isInternational ? copy.territory : copy.region, value: displayValue(locale, job.region) });
   }
 
   const hasBadges = (job.urgency && job.urgency !== 'normal') || isInternational || remoteRegion;
@@ -107,7 +107,7 @@ export default function JobCard({ job, variant = 'default', locale = 'fr' }: Job
 
       <div className="mt-auto pt-3 border-t border-border flex items-center justify-between gap-3">
         <Link
-          href={`${localizedPath(locale, 'apply')}?mandat_id=${job.id}`}
+          href={localizedJobApplicationPath(locale, job)}
           className="btn-primary btn-sm"
           data-analytics-event="job_apply_click"
           data-analytics-label="job_card_primary_cta"

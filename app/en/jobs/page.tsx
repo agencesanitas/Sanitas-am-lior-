@@ -1,8 +1,9 @@
-import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import JobFilters from '@/components/JobFilters';
 import { REMOTE_JOB_REGIONS } from '@/lib/constants';
+import { localizedPath } from '@/lib/i18n';
+import { isPharmacyProfession } from '@/lib/pharmacy';
 import { fetchPublicJobs, jobSearchParam, type JobSearchParams } from '@/lib/public-jobs';
 import JobCard from '@/components/JobCard';
 import PopularSearchLinks from '@/components/PopularSearchLinks';
@@ -30,6 +31,9 @@ export const dynamic = 'force-dynamic';
 export default async function EnglishJobsPage({ searchParams }: { searchParams: JobSearchParams }) {
   const jobs = await fetchPublicJobs(searchParams);
   const remoteOnly = jobSearchParam(searchParams, 'region') === REMOTE_JOB_REGIONS;
+  const profession = jobSearchParam(searchParams, 'profession');
+  const applyHref = localizedPath('en', 'apply',
+    isPharmacyProfession(profession) ? `?profession=${encodeURIComponent(profession)}` : '');
 
   return (
     <PublicLayout locale="en">
@@ -83,7 +87,7 @@ export default async function EnglishJobsPage({ searchParams }: { searchParams: 
                 Try broadening your filters, or send us your profile. We will contact you when a compatible assignment is available.
               </p>
               <div className="mt-6 flex justify-center gap-3 flex-wrap">
-                <a href="/en/apply" className="btn-primary">Submit my profile</a>
+                <a href={applyHref} className="btn-primary">Submit my profile</a>
                 <a href="/en/jobs" className="btn-secondary">Reset</a>
               </div>
             </div>
@@ -101,8 +105,7 @@ export default async function EnglishJobsPage({ searchParams }: { searchParams: 
           )}
         </div>
       </section>
-      <div className="container-page space-y-10 pb-14">
-        <PharmacyRecruitmentListings locale="en" profession={jobSearchParam(searchParams, 'profession')} />
+      <div className="container-page pb-14">
         <PopularSearchLinks locale="en" />
       </div>
     </PublicLayout>

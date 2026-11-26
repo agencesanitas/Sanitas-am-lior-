@@ -1,8 +1,9 @@
-import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import JobFilters from '@/components/JobFilters';
 import { REMOTE_JOB_REGIONS } from '@/lib/constants';
+import { localizedPath } from '@/lib/i18n';
+import { isPharmacyProfession } from '@/lib/pharmacy';
 import { fetchPublicJobs, jobSearchParam, type JobSearchParams } from '@/lib/public-jobs';
 import JobCard from '@/components/JobCard';
 import PopularSearchLinks from '@/components/PopularSearchLinks';
@@ -29,6 +30,9 @@ export const dynamic = 'force-dynamic';
 export default async function PostesPage({ searchParams }: { searchParams: JobSearchParams }) {
   const jobs = await fetchPublicJobs(searchParams);
   const remoteOnly = jobSearchParam(searchParams, 'region') === REMOTE_JOB_REGIONS;
+  const profession = jobSearchParam(searchParams, 'profession');
+  const applyHref = localizedPath('fr', 'apply',
+    isPharmacyProfession(profession) ? `?profession=${encodeURIComponent(profession)}` : '');
 
   return (
     <PublicLayout>
@@ -82,7 +86,7 @@ export default async function PostesPage({ searchParams }: { searchParams: JobSe
               </p>
               <div className="mt-6 flex justify-center gap-3 flex-wrap">
                 <a
-                  href="/postuler"
+                  href={applyHref}
                   className="btn-primary"
                   data-analytics-event="jobs_empty_state_click"
                   data-analytics-label="apply"
@@ -113,8 +117,7 @@ export default async function PostesPage({ searchParams }: { searchParams: JobSe
           )}
         </div>
       </section>
-      <div className="container-page space-y-10 pb-14">
-        <PharmacyRecruitmentListings locale="fr" profession={jobSearchParam(searchParams, 'profession')} />
+      <div className="container-page pb-14">
         <PopularSearchLinks />
       </div>
     </PublicLayout>
