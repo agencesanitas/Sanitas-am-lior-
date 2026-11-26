@@ -61,12 +61,12 @@ export function HomeSpotlight({ locale }: { locale: Locale }) {
     <div className="grid h-full overflow-hidden rounded-2xl bg-[oklch(0.265_0.055_245)] text-white [&_a:focus-visible]:outline-white lg:grid-cols-[2fr_3fr]">
       <div className="relative order-last aspect-[16/9] lg:order-first lg:aspect-auto">
         <Image
-          src="/images/sanitas-equipe-soins.jpg"
-          alt={en ? 'Two healthcare professionals reviewing information together' : 'Deux professionnels de la santé consultent un dossier ensemble'}
+          src="/images/sanitas-soins-infirmiers.webp"
+          alt={en ? 'A nurse preparing a blood pressure monitor in an exam room' : 'Un infirmier prépare un tensiomètre dans une salle de consultation'}
           fill
           priority
           sizes="(min-width: 1152px) 436px, (min-width: 1024px) 38vw, 100vw"
-          className="object-cover object-[43%_50%]"
+          className="object-cover object-top"
         />
       </div>
       <div className="flex flex-col p-5 sm:p-9 lg:justify-center lg:p-10">
