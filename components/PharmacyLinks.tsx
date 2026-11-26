@@ -46,51 +46,48 @@ function pharmacyRoles(locale: Locale) {
 export function PharmacySpotlight({ locale }: { locale: Locale }) {
   const en = locale === 'en';
   return (
-    <section id="pharmacie" className="container-page scroll-mt-20" aria-labelledby="pharmacie-title">
-      <div className="grid overflow-hidden rounded-2xl bg-[oklch(0.245_0.05_196)] text-white [&_a:focus-visible]:outline-white lg:grid-cols-[2fr_3fr]">
-        <div className="relative order-last aspect-[16/9] lg:order-first lg:aspect-auto">
-          <Image
-            src="/images/sanitas-pharmacie-communautaire.webp"
-            alt={en ? 'A pharmacist and an assistant in a community pharmacy' : 'Un pharmacien et un assistant dans une pharmacie communautaire'}
-            fill
-            priority
-            sizes="(min-width: 1152px) 436px, (min-width: 1024px) 38vw, 100vw"
-            className="object-cover object-[47%_46%]"
-          />
-        </div>
-        <div className="p-5 sm:p-9 lg:p-10">
-          <p className="text-sm font-semibold text-[oklch(0.91_0.072_173)]">{en ? 'Featured jobs' : 'Offres en vedette'}</p>
-          <h2 id="pharmacie-title" className="mt-2 font-serif text-[clamp(2rem,4.35vw,3.75rem)] leading-none tracking-[-0.035em]">
-            {en ? 'Community pharmacy' : 'Pharmacie communautaire'}
-          </h2>
-          <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
-            {en ? 'Relief and permanent positions across Quebec.' : 'Remplacements et postes permanents dans plusieurs régions du Québec.'}
-          </p>
-          <ul className="mt-6 divide-y divide-white/25 border-y border-white/25">
-            {pharmacyRoles(locale).map(({ href, title, rateLabel, applyHref, applyLabel }) => (
-              <li key={href} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 py-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-5">
-                <h3 className="text-base font-semibold leading-tight sm:text-lg">
-                  <Link href={href} className="underline decoration-white/45 underline-offset-4 transition-colors hover:text-[oklch(0.91_0.072_173)]">{title}</Link>
-                </h3>
-                <p className="flex flex-col items-end whitespace-nowrap leading-tight text-[oklch(0.91_0.072_173)]">
-                  <span className="text-xs">{en ? 'Up to' : 'Jusqu’à'}</span>
-                  <strong className="text-[1.55rem] font-bold tabular-nums sm:text-3xl">{rateLabel}</strong>
-                </p>
-                <Link href={applyHref} aria-label={applyLabel} className="col-span-2 inline-flex min-h-11 w-fit items-center gap-2 rounded-md bg-[oklch(0.94_0.043_174)] px-3.5 text-sm font-bold text-[oklch(0.245_0.05_196)] transition-colors hover:bg-white sm:col-span-1">
-                  {en ? 'Apply' : 'Postuler'} <span aria-hidden="true">›</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-            <p className="text-xs text-white/75">{en ? 'Rates vary by assignment.' : 'Taux selon le mandat.'}</p>
-            <Link href={PHARMACY_PAGES.employer[locale]} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-white/50 underline-offset-4 hover:text-[oklch(0.91_0.072_173)]">
-              {en ? 'Staff your pharmacy' : 'Recruter en pharmacie'} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+    <div className="grid h-full overflow-hidden rounded-2xl bg-[oklch(0.245_0.05_196)] text-white [&_a:focus-visible]:outline-white lg:grid-cols-[2fr_3fr]">
+      <div className="relative order-last aspect-[16/9] lg:order-first lg:aspect-auto">
+        <Image
+          src="/images/sanitas-pharmacie-communautaire.webp"
+          alt={en ? 'A pharmacist and an assistant in a community pharmacy' : 'Un pharmacien et un assistant dans une pharmacie communautaire'}
+          fill
+          sizes="(min-width: 1152px) 436px, (min-width: 1024px) 38vw, 100vw"
+          className="object-cover object-[47%_46%]"
+        />
+      </div>
+      <div className="p-5 sm:p-9 lg:p-10">
+        <p className="text-sm font-semibold text-[oklch(0.91_0.072_173)]">{en ? 'Featured jobs' : 'Offres en vedette'}</p>
+        <h2 className="mt-2 font-serif text-[clamp(2rem,4.35vw,3.75rem)] leading-none tracking-[-0.035em]">
+          {en ? 'Community pharmacy' : 'Pharmacie communautaire'}
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
+          {en ? 'Relief and permanent positions across Quebec.' : 'Remplacements et postes permanents dans plusieurs régions du Québec.'}
+        </p>
+        <ul className="mt-6 divide-y divide-white/25 border-y border-white/25">
+          {pharmacyRoles(locale).map(({ href, title, rateLabel, applyHref, applyLabel }) => (
+            <li key={href} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 py-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:gap-x-5">
+              <h3 className="text-base font-semibold leading-tight sm:text-lg">
+                <Link href={href} className="underline decoration-white/45 underline-offset-4 transition-colors hover:text-[oklch(0.91_0.072_173)]">{title}</Link>
+              </h3>
+              <p className="flex flex-col items-end whitespace-nowrap leading-tight text-[oklch(0.91_0.072_173)]">
+                <span className="text-xs">{en ? 'Up to' : 'Jusqu’à'}</span>
+                <strong className="text-[1.55rem] font-bold tabular-nums sm:text-3xl">{rateLabel}</strong>
+              </p>
+              <Link href={applyHref} aria-label={applyLabel} className="col-span-2 inline-flex min-h-11 w-fit items-center gap-2 rounded-md bg-[oklch(0.94_0.043_174)] px-3.5 text-sm font-bold text-[oklch(0.245_0.05_196)] transition-colors hover:bg-white sm:col-span-1">
+                {en ? 'Apply' : 'Postuler'} <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <p className="text-xs text-white/75">{en ? 'Rates vary by assignment.' : 'Taux selon le mandat.'}</p>
+          <Link href={PHARMACY_PAGES.employer[locale]} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-white/50 underline-offset-4 hover:text-[oklch(0.91_0.072_173)]">
+            {en ? 'Staff your pharmacy' : 'Recruter en pharmacie'} <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

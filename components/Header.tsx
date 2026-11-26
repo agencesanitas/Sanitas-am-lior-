@@ -91,9 +91,10 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
         <nav className="hidden items-center gap-1 lg:flex" aria-label={copy.nav.primary}>
           {nav.map((item) => {
             const { href } = item;
+            const NavLink = href.includes('#') ? 'a' : Link;
             const active = item.active || pathname === href || pathname.startsWith(href + '/');
             return (
-              <Link
+              <NavLink
                 key={item.href}
                 href={href}
                 aria-current={pathname === href ? 'page' : undefined}
@@ -103,7 +104,7 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
                 )}
               >
                 {item.label}
-              </Link>
+              </NavLink>
             );
           })}
         </nav>
@@ -167,17 +168,20 @@ export default function Header({ initialUser = null, locale = 'fr' }: HeaderProp
       {open && (
         <div className="lg:hidden border-t border-border bg-bg">
           <div className="container-page py-3 flex flex-col gap-1">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={pathname === item.href ? 'page' : undefined}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-[15px] text-fg hover:bg-muted"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {nav.map((item) => {
+              const NavLink = item.href.includes('#') ? 'a' : Link;
+              return (
+                <NavLink
+                  key={item.href}
+                  href={item.href}
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-[15px] text-fg hover:bg-muted"
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
             <div className="mt-2 flex flex-col gap-2 pt-2 border-t border-border">
               <div className="flex">
                 <LanguageSwitch currentHref={currentHref} locale={locale} />

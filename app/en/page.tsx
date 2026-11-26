@@ -1,6 +1,5 @@
 import { unstable_noStore as noStore } from 'next/cache';
-import { HomeAgencyProof, HomeEntry, HomeJobs } from '@/components/HomeEntry';
-import { PharmacySpotlight } from '@/components/PharmacyLinks';
+import { HomeAgencyProof, HomeEntry, HomeJobs, HomeSpotlight } from '@/components/HomeEntry';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import { withJobDeadline } from '@/lib/job-availability';
@@ -107,7 +106,7 @@ export default async function EnglishHomePage() {
         }}
       />
       <HomeEntry locale="en" />
-      <PharmacySpotlight locale="en" />
+      <HomeSpotlight locale="en" />
       <HomeAgencyProof locale="en" />
       <HomeJobs locale="en" jobs={urgentJobs} />
 

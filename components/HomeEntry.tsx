@@ -1,6 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import HomeSearch from './HomeSearch';
 import JobCard from './JobCard';
+import HomeSpotlightCarousel from './HomeSpotlightCarousel';
+import { PharmacySpotlight } from './PharmacyLinks';
 import { COMPANY, QUEBEC_REGIONS } from '@/lib/constants';
 import { localizedPath, type Locale } from '@/lib/i18n';
 import type { Job } from '@/types';
@@ -28,13 +31,78 @@ export function HomeEntry({ locale }: { locale: Locale }) {
             {en ? 'I’m hiring' : 'Je cherche du personnel'}
             <span aria-hidden="true" className="text-xl">↗</span>
           </Link>
-          <a href="#pharmacie" className="w-fit py-1 text-sm font-semibold text-accent underline-offset-4 hover:underline">
-            {en ? 'Featured pharmacy jobs ↓' : 'Offres en pharmacie ↓'}
+          <a href="#offres-en-vedette" className="w-fit py-1 text-sm font-semibold text-accent underline-offset-4 hover:underline">
+            {en ? 'Featured opportunities ↓' : 'Offres en vedette ↓'}
           </a>
         </nav>
       </div>
     </section>
   );
+}
+
+export function HomeSpotlight({ locale }: { locale: Locale }) {
+  const en = locale === 'en';
+  const nursingLinks = [
+    {
+      title: en ? 'Nursing assignments' : 'Mandats infirmiers',
+      description: en ? 'General and specialized care' : 'Soins généraux et spécialisés',
+      href: en ? '/en/nursing-agency-jobs-quebec' : '/emplois-infirmieres-quebec',
+      action: en ? 'See jobs' : 'Voir les postes',
+    },
+    {
+      title: en ? 'Remote regions' : 'Régions éloignées',
+      description: en ? 'Nursing assignments across Quebec' : 'Mandats dans plusieurs régions du Québec',
+      href: en ? '/en/remote-region-nursing-assignments-quebec' : '/mandats-infirmiers-region-eloignee',
+      action: en ? 'See assignments' : 'Voir les mandats',
+    },
+  ];
+
+  const nursing = (
+    <div className="grid h-full overflow-hidden rounded-2xl bg-[oklch(0.265_0.055_245)] text-white [&_a:focus-visible]:outline-white lg:grid-cols-[2fr_3fr]">
+      <div className="relative order-last aspect-[16/9] lg:order-first lg:aspect-auto">
+        <Image
+          src="/images/sanitas-equipe-soins.jpg"
+          alt={en ? 'Two healthcare professionals reviewing information together' : 'Deux professionnels de la santé consultent un dossier ensemble'}
+          fill
+          priority
+          sizes="(min-width: 1152px) 436px, (min-width: 1024px) 38vw, 100vw"
+          className="object-cover object-[43%_50%]"
+        />
+      </div>
+      <div className="flex flex-col p-5 sm:p-9 lg:justify-center lg:p-10">
+        <p className="text-sm font-semibold text-[oklch(0.91_0.055_232)]">{en ? 'Featured jobs' : 'Offres en vedette'}</p>
+        <h2 className="mt-2 font-serif text-[clamp(2rem,4.35vw,3.75rem)] leading-none tracking-[-0.035em]">
+          {en ? 'Nursing' : 'Soins infirmiers'}
+        </h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/80 sm:text-base">
+          {en ? 'Find assignments that match your specialty and availability.' : 'Trouvez des mandats selon votre spécialité et vos disponibilités.'}
+        </p>
+        <ul className="mt-6 divide-y divide-white/25 border-y border-white/25">
+          {nursingLinks.map(({ title, description, href, action }) => (
+            <li key={href} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3.5">
+              <div>
+                <h3 className="text-base font-semibold leading-tight sm:text-lg">{title}</h3>
+                <p className="mt-1 text-sm leading-snug text-white/75">{description}</p>
+              </div>
+              <Link href={href} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[oklch(0.94_0.043_232)] px-3.5 text-sm font-bold text-[oklch(0.265_0.055_245)] transition-colors hover:bg-white">
+                {action} <span aria-hidden="true">›</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <Link href={localizedPath(locale, 'apply')} className="inline-flex min-h-11 items-center text-sm text-white/80 underline decoration-white/50 underline-offset-4 hover:text-white">
+            {en ? 'Send my profile' : 'Envoyer mon profil'}
+          </Link>
+          <Link href={localizedPath(locale, 'facilities')} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white underline decoration-white/50 underline-offset-4 hover:text-[oklch(0.91_0.055_232)]">
+            {en ? 'Hire nursing staff' : 'Recruter en soins infirmiers'} <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+
+  return <HomeSpotlightCarousel locale={locale} nursing={nursing} pharmacy={<PharmacySpotlight locale={locale} />} />;
 }
 
 export function HomeJobs({ locale, jobs }: { locale: Locale; jobs: Job[] }) {
