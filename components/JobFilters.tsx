@@ -10,6 +10,7 @@ import {
   ALL_DEPARTMENTS,
   JOB_COUNTRIES,
   DEFAULT_JOB_COUNTRY,
+  REMOTE_JOB_REGIONS,
   isInternationalCountry,
 } from '@/lib/constants';
 import { PUBLIC_COPY, displayValue, localizedPath, optionLabel, type Locale } from '@/lib/i18n';
@@ -135,7 +136,14 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
             id="f-country"
             className="input"
             value={filters.country}
-            onChange={(e) => update('country', e.target.value)}
+            onChange={(e) => {
+              const country = e.target.value;
+              setFilters((current) => ({
+                ...current,
+                country,
+                region: isInternationalCountry(country) && current.region === REMOTE_JOB_REGIONS ? '' : current.region,
+              }));
+            }}
           >
             <option value="">{copy.common.all}</option>
             {JOB_COUNTRIES.map((country) => (
@@ -167,6 +175,7 @@ export default function JobFilters({ locale: localeProp }: { locale?: Locale }) 
               onChange={(e) => update('region', e.target.value)}
             >
               <option value="">{copy.common.allFem}</option>
+              <option value={REMOTE_JOB_REGIONS}>{locale === 'en' ? 'Remote regions of Quebec' : 'Régions éloignées du Québec'}</option>
               {QUEBEC_REGIONS.map((r) => (
                 <option key={r} value={r}>
                   {r}

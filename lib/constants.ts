@@ -43,6 +43,8 @@ export const QUEBEC_REGIONS: string[] = [
   'Saguenay–Lac-Saint-Jean',
 ];
 
+export const REMOTE_JOB_REGIONS = 'regions-eloignees';
+
 // Régions considérées « éloignées » pour l'affichage (badge sur les cartes
 // de postes). Comparaison sans accents : le champ jobs.region peut contenir
 // des libellés libres (ex. « Baie-James », « Grand Nord »).

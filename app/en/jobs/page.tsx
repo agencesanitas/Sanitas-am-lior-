@@ -1,12 +1,11 @@
 import { PharmacyRecruitmentListings } from '@/components/PharmacyLinks';
-import { withJobDeadline } from '@/lib/job-availability';
-import { unstable_noStore as noStore } from 'next/cache';
 import PublicLayout from '@/components/PublicLayout';
 import SeoJsonLd from '@/components/SeoJsonLd';
 import JobFilters from '@/components/JobFilters';
+import { REMOTE_JOB_REGIONS } from '@/lib/constants';
+import { fetchPublicJobs, jobSearchParam, type JobSearchParams } from '@/lib/public-jobs';
 import JobCard from '@/components/JobCard';
 import PopularSearchLinks from '@/components/PopularSearchLinks';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import {
   breadcrumbJsonLd,
   collectionPageJsonLd,
@@ -15,8 +14,6 @@ import {
   publicPageMetadata,
   serviceJsonLd,
 } from '@/lib/seo';
-import type { Job } from '@/types';
-import { urgencyOrder } from '@/lib/utils';
 
 export const metadata = publicPageMetadata({
   title: 'Healthcare jobs | Quebec and international assignments',
@@ -30,56 +27,9 @@ export const metadata = publicPageMetadata({
 
 export const dynamic = 'force-dynamic';
 
-interface Props {
-  searchParams: Record<string, string | string[] | undefined>;
-}
-
-function param(sp: Props['searchParams'], k: string): string {
-  const v = sp[k];
-  if (Array.isArray(v)) return v[0] || '';
-  return v || '';
-}
-
-async function fetchJobs(sp: Props['searchParams']): Promise<Job[]> {
-  noStore();
-  try {
-    const supabase = createSupabaseAdminClient();
-    let q = withJobDeadline(supabase.from('jobs').select('*').eq('status', 'active'));
-
-    const profession = param(sp, 'profession');
-    const country = param(sp, 'country');
-    const region = param(sp, 'region');
-    const city = param(sp, 'city');
-    const establishment = param(sp, 'establishment');
-    const department = param(sp, 'department');
-    const shift = param(sp, 'shift');
-    const mandate_type = param(sp, 'mandate_type');
-    const urgency = param(sp, 'urgency');
-
-    if (profession) q = q.eq('profession', profession);
-    if (country) q = q.eq('country', country);
-    if (region) q = q.eq('region', region);
-    if (city) q = q.ilike('city', `%${city}%`);
-    if (establishment) q = q.ilike('establishment', `%${establishment}%`);
-    if (department) q = q.eq('department', department);
-    if (shift) q = q.eq('shift', shift);
-    if (mandate_type) q = q.eq('mandate_type', mandate_type);
-    if (urgency) q = q.eq('urgency', urgency);
-
-    const { data } = await q.order('created_at', { ascending: false }).limit(60);
-    const jobs = (data || []) as Job[];
-    return jobs.sort((a, b) => {
-      const u = urgencyOrder(a.urgency) - urgencyOrder(b.urgency);
-      if (u !== 0) return u;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
-  } catch {
-    return [];
-  }
-}
-
-export default async function EnglishJobsPage({ searchParams }: Props) {
-  const jobs = await fetchJobs(searchParams);
+export default async function EnglishJobsPage({ searchParams }: { searchParams: JobSearchParams }) {
+  const jobs = await fetchPublicJobs(searchParams);
+  const remoteOnly = jobSearchParam(searchParams, 'region') === REMOTE_JOB_REGIONS;
 
   return (
     <PublicLayout locale="en">
@@ -119,8 +69,8 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
         }}
       />
       <section className="container-page pb-6 pt-9 sm:pb-8 sm:pt-12">
-        <h1 className="text-display-lg text-fg">Healthcare jobs</h1>
-        <p className="mt-3 max-w-2xl text-fg-muted">Find nursing, pharmacy and other healthcare positions.</p>
+        <h1 className="text-display-lg text-fg">{remoteOnly ? 'Jobs in remote regions' : 'Healthcare jobs'}</h1>
+        <p className="mt-3 max-w-2xl text-fg-muted">{remoteOnly ? 'Browse active healthcare assignments in remote regions of Quebec.' : 'Find nursing, pharmacy and other healthcare positions.'}</p>
         <div className="mt-6"><JobFilters locale="en" /></div>
       </section>
 
@@ -152,7 +102,7 @@ export default async function EnglishJobsPage({ searchParams }: Props) {
         </div>
       </section>
       <div className="container-page space-y-10 pb-14">
-        <PharmacyRecruitmentListings locale="en" profession={param(searchParams, 'profession')} />
+        <PharmacyRecruitmentListings locale="en" profession={jobSearchParam(searchParams, 'profession')} />
         <PopularSearchLinks locale="en" />
       </div>
     </PublicLayout>

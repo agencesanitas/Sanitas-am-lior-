@@ -4,7 +4,7 @@ import HomeSearch from './HomeSearch';
 import JobCard from './JobCard';
 import HomeSpotlightCarousel from './HomeSpotlightCarousel';
 import { PharmacySpotlight } from './PharmacyLinks';
-import { COMPANY, QUEBEC_REGIONS } from '@/lib/constants';
+import { COMPANY, QUEBEC_REGIONS, REMOTE_JOB_REGIONS } from '@/lib/constants';
 import { localizedPath, type Locale } from '@/lib/i18n';
 import type { Job } from '@/types';
 
@@ -42,17 +42,19 @@ export function HomeEntry({ locale }: { locale: Locale }) {
 
 export function HomeSpotlight({ locale }: { locale: Locale }) {
   const en = locale === 'en';
+  const nurse = { profession: 'Infirmier(ère)' };
+  const nursingJobs = localizedPath(locale, 'jobs');
   const nursingLinks = [
     {
       title: en ? 'Nursing assignments' : 'Mandats infirmiers',
       description: en ? 'General and specialized care' : 'Soins généraux et spécialisés',
-      href: en ? '/en/nursing-agency-jobs-quebec' : '/emplois-infirmieres-quebec',
+      href: `${nursingJobs}?${new URLSearchParams(nurse)}`,
       action: en ? 'See jobs' : 'Voir les postes',
     },
     {
       title: en ? 'Remote regions' : 'Régions éloignées',
-      description: en ? 'Nursing assignments across Quebec' : 'Mandats dans plusieurs régions du Québec',
-      href: en ? '/en/remote-region-nursing-assignments-quebec' : '/mandats-infirmiers-region-eloignee',
+      description: en ? 'Gaspésie, Côte-Nord, Northern Quebec and more' : 'Gaspésie, Côte-Nord, Nord-du-Québec et plus',
+      href: `${nursingJobs}?${new URLSearchParams({ ...nurse, region: REMOTE_JOB_REGIONS })}`,
       action: en ? 'See assignments' : 'Voir les mandats',
     },
   ];
